@@ -153,13 +153,13 @@ TestCase("mocking", {
 		
 		assertTrue(namespace.collaborator.verify());
 	},
-	"test that expects returns false if specified method is called": function(){
+	"test that expects returns false if specified method is not called": function(){
 		namespace.collaborator.expects("another_method");
 		
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects allow for a number of times to be specified": function(){
-		namespace.collaborator.expects("another_method").times(3);
+		namespace.collaborator.expects("another_method").toBeCalled.times(3);
 		
 		namespace.collaborator.another_method();
 		namespace.collaborator.another_method();
@@ -167,7 +167,7 @@ TestCase("mocking", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects allows for a minimum number of calls to be defined": function(){
-		namespace.collaborator.expects("another_method").atLeast(3);
+		namespace.collaborator.expects("another_method").toBeCalled.atLeast(3);
 		
 		namespace.collaborator.another_method();
 		namespace.collaborator.another_method();
@@ -180,7 +180,7 @@ TestCase("mocking", {
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that expects allows for a maximum number of calls to be set": function(){
-		namespace.collaborator.expects("another_method").atMost(3);
+		namespace.collaborator.expects("another_method").toBeCalled.atMost(3);
 		
 		namespace.collaborator.another_method();
 		namespace.collaborator.another_method();
@@ -193,7 +193,25 @@ TestCase("mocking", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects allows a number of calls to be set between a specified threshold": function(){
-		namespace.collaborator.expects("another_method").between(3, 5);
+		namespace.collaborator.expects("another_method").toBeCalled.between(3, 5);
+		
+		namespace.collaborator.another_method();
+		namespace.collaborator.another_method();
+		
+		assertFalse(namespace.collaborator.verify());
+		
+		namespace.collaborator.another_method();
+		namespace.collaborator.another_method();
+		
+		assertTrue(namespace.collaborator.verify());
+		
+		namespace.collaborator.another_method();
+		namespace.collaborator.another_method();
+		
+		assertFalse(namespace.collaborator.verify());
+	},
+	"test that you can chain atLeast and atMost calls": function(){
+		namespace.collaborator.expects("another_method").toBeCalled.atLeast(3).atMost(5);
 		
 		namespace.collaborator.another_method();
 		namespace.collaborator.another_method();
@@ -213,6 +231,6 @@ TestCase("mocking", {
 	"test that expects allows for expected arguments to be specified": function(){
 		namespace.collaborator.expects("another_method").withArguments('hello', 'yes', 10);
 		
-		assertTrue(namespace.collaborator.verify())
+		assertTrue(namespace.collaborator.verify());
 	}
 });

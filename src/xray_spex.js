@@ -82,27 +82,36 @@ var xrayspex = (function(){
 			
 			mockObj.expects = function(method) {
 				expectations.method = this[method];
-				expectations.verifications = [{call: expectations.method['calledExactly'], params: 1}];
 				
 				return {
-					times: function(num) {
-						expectations.verifications = [{call: expectations.method['calledExactly'], params: num}];
+					toBeCalled: {
+						times: function(num) {
+							expectations.verifications.push({call: expectations.method['calledExactly'], params: num});
+						},
+						atLeast: function(min) {
+							expectations.verifications.push({call: expectations.method['calledAtLeast'], params: min});
+							return this;
+						},
+						atMost: function(max) {
+							expectations.verifications.push({call: expectations.method['calledAtMost'], params: max});
+							return this;
+						},
+						between: function(min, max) {
+							this.atLeast(min);
+							this.atMost(max);
+						}
 					},
-					atLeast: function(min) {
-						expectations.times = min;
-						expectations.verifications = [{call: expectations.method['calledAtLeast'], params: min}];
-					},
-					atMost: function(max) {
-						expectations.times = max;
-						expectations.verifications = [{call: expectations.method['calledAtMost'], params: max}];
-					},
-					between: function(min, max) {
-						expectations.verifications = [{call: expectations.method['calledAtLeast'], params: min}, {call: expectations.method['calledAtMost'], params: max}];
+					withArguments: function() {
+						
 					}
 				}
 			}
 			
 			mockObj.verify = function() {
+				if(expectations.verifications.length === 0) {
+					expectations.verifications = [{call: expectations.method['calledExactly'], params: 1}]
+				}
+				
 				for(var i = 0; i < expectations.verifications.length; i++) {
 					if(!expectations.verifications[i].call(expectations.verifications[i].params))
 					  return false;
