@@ -110,3 +110,4 @@ TestCase("stubbing", {
 		assertFalse(sut.some_method.calledWithExactly("bread", "eggs"));
 	}
 });
+
