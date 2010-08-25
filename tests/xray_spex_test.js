@@ -42,6 +42,9 @@ TestCase("stubbing", {
 		sut.some_method();
 		assertTrue(sut.some_method.wasCalled);
 	},
+	"test that wasCalled returns false if not called": function(){
+		assertFalse(sut.some_method.wasCalled);
+	},
 	"test that calledAtLeast returns true if below threshold": function(){
 		sut.some_method();
 		sut.some_method();
@@ -93,21 +96,72 @@ TestCase("stubbing", {
 		assertTrue(sut.some_method.calledWith("bread", "eggs"));
 		assertTrue(sut.some_method.calledWith("bread", "milk", "eggs"));
 	},
-	"test that calledWith returns false if arguments aren't found": function(){
+	"test that called with returns false if arguments aren't found": function(){
 		sut.some_method("bread", "milk", "eggs");
 		
 		assertFalse(sut.some_method.calledWith("fire", "death"));
-	},
-	"test that callWithExactly returns true if arguments match exactly": function(){
-		sut.some_method("bread", "milk", "eggs");
-		
-		assertTrue(sut.some_method.calledWithExactly("bread", "milk", "eggs"));
-	},
-	"test that callWithExactly returns false if arguments do not match exactly": function(){
-		sut.some_method("bread", "milk", "eggs");
-		
-		assertFalse(sut.some_method.calledWithExactly("bread", "eggs", "fire"));
-		assertFalse(sut.some_method.calledWithExactly("bread", "eggs"));
 	}
 });
 
+TestCase("mocking", {
+	setUp: function(){
+		namespace = {
+			sut: {}
+		};
+		
+		xrayspex.mock(namespace, "collaborator", {
+			some_method: function(){},
+			another_method: function(){}
+		});
+	},
+	"test that object is created when mocked": function(){		
+		assertTrue(typeof namespace.collaborator === "object");
+	},
+	"test that the mock inherits the supplied object": function(){
+		assertTrue(typeof namespace.collaborator.some_method === "function");
+		assertTrue(typeof namespace.collaborator.another_method === "function");
+	},
+	"test that an empty object is created if no structure is defined": function(){
+		xrayspex.mock(namespace, "anonymous");
+		
+		assertTrue(typeof namespace.anonymous === "object");
+	},
+	"test that the mock is removed when restore is called": function(){
+		namespace.collaborator.restore();
+		
+		assertUndefined(namespace.collaborator);
+	},
+	"test that the original object is restored when mock.restore is called": function(){
+		namespace.exisisting_object = function(){
+			// I'm already here.
+		}
+		
+		var original = namespace.exisisting_object;
+		
+		xrayspex.mock(namespace, "exisisting_object", {
+			some_method: function(){},
+			another_method: function(){}
+		});
+		
+		namespace.exisisting_object.restore();
+		
+		assertEquals(original, namespace.exisisting_object);
+	},
+	"test that verify returns true if all expectations are met": function(){
+		namespace.collaborator.expectations = true;
+		
+		assertTrue(namespace.collaborator.verify());
+	},
+	"test that verify returns false if expectations are not met": function(){
+		namespace.collaborator.expectations = false;
+		
+		assertFalse(namespace.collaborator.verify());
+	},
+	"test that expects returns true if specified method is called": function(){
+		namespace.collaborator.some_method();
+		
+		namespace.collaborator.expects("some_method");
+		
+		assertTrue(namespace.collaborator.verify());
+	}
+});
