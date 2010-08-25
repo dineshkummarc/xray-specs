@@ -209,5 +209,10 @@ TestCase("mocking", {
 		namespace.collaborator.another_method();
 		
 		assertFalse(namespace.collaborator.verify());
+	},
+	"test that expects allows for expected arguments to be specified": function(){
+		namespace.collaborator.expects("another_method").withArguments('hello', 'yes', 10);
+		
+		assertTrue(namespace.collaborator.verify())
 	}
 });
