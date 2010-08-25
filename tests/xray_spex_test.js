@@ -152,5 +152,18 @@ TestCase("mocking", {
 		namespace.collaborator.another_method();
 		
 		assertTrue(namespace.collaborator.verify());
+	},
+	"test that expects returns false if specified method is called": function(){
+		namespace.collaborator.expects("another_method");
+		
+		assertFalse(namespace.collaborator.verify());
+	},
+	"test that expects allow for a number of times to be specified": function(){
+		namespace.collaborator.expects("another_method").times(3);
+		
+		namespace.collaborator.another_method();
+		namespace.collaborator.another_method();
+		
+		assertFalse(namespace.collaborator.verify());
 	}
 });
