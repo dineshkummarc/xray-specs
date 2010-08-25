@@ -72,18 +72,18 @@ var xrayspex = (function(){
 				this.stub(mockObj, method);
 			}
 			
-			mockObj.expectations = false;
+			var expectations = {};
 			
 			mockObj.restore = function() {
 				parent[name] = original;
 			}
 			
 			mockObj.expects = function(method) {
-				this.expectations = this[method].wasCalled;
+				expectations.method = this[method];
 			}
 			
 			mockObj.verify = function() {
-				return this.expectations;
+				return expectations.method.wasCalled;
 			}
 		}
 	}

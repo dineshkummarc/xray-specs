@@ -147,20 +147,9 @@ TestCase("mocking", {
 		
 		assertEquals(original, namespace.exisisting_object);
 	},
-	"test that verify returns true if all expectations are met": function(){
-		namespace.collaborator.expectations = true;
-		
-		assertTrue(namespace.collaborator.verify());
-	},
-	"test that verify returns false if expectations are not met": function(){
-		namespace.collaborator.expectations = false;
-		
-		assertFalse(namespace.collaborator.verify());
-	},
 	"test that expects returns true if specified method is called": function(){
-		namespace.collaborator.another_method();
-		
 		namespace.collaborator.expects("another_method");
+		namespace.collaborator.another_method();
 		
 		assertTrue(namespace.collaborator.verify());
 	}
