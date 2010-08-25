@@ -1,7 +1,7 @@
 TestCase("stubbing", {
 	setUp: function(){
 		sut = {};
-		mockery.stub(sut, "some_method");
+		xrayspex.stub(sut, "some_method");
 	},
 	"test that stubs are created on the target object": function(){
 		assertEquals(typeof sut.some_method, "function");
@@ -13,13 +13,13 @@ TestCase("stubbing", {
 	},
 	"test that original functions are restored": function(){
 		var original = sut.another_method = function() {};
-		mockery.stub(sut, "another_method");
+		xrayspex.stub(sut, "another_method");
 		sut.another_method.restore();
 		
 		assertEquals(original, sut.another_method);
 	},
 	"test that it returns an anonymous function if no object reference is provided": function(){
-		var anonStub = mockery.stub();
+		var anonStub = xrayspex.stub();
 		
 		assertEquals("function", typeof anonStub);
 	},
@@ -93,9 +93,20 @@ TestCase("stubbing", {
 		assertTrue(sut.some_method.calledWith("bread", "eggs"));
 		assertTrue(sut.some_method.calledWith("bread", "milk", "eggs"));
 	},
-	"test that called with returns false if arguments aren't found": function(){
+	"test that calledWith returns false if arguments aren't found": function(){
 		sut.some_method("bread", "milk", "eggs");
 		
 		assertFalse(sut.some_method.calledWith("fire", "death"));
+	},
+	"test that callWithExactly returns true if arguments match exactly": function(){
+		sut.some_method("bread", "milk", "eggs");
+		
+		assertTrue(sut.some_method.calledWithExactly("bread", "milk", "eggs"));
+	},
+	"test that callWithExactly returns false if arguments do not match exactly": function(){
+		sut.some_method("bread", "milk", "eggs");
+		
+		assertFalse(sut.some_method.calledWithExactly("bread", "eggs", "fire"));
+		assertFalse(sut.some_method.calledWithExactly("bread", "eggs"));
 	}
 });

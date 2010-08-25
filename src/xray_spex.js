@@ -1,4 +1,4 @@
-var mockery = {
+var xrayspex = {
 	stub: function(object, method) {
 		var original,
 			returnValue,
@@ -34,12 +34,24 @@ var mockery = {
 		}
 		
 		fn.calledWith = function() {
+			for(var i = 0, l = arguments.length; i < l; i++) {
+				return [].indexOf.call(fn.args, arguments[i]) !== -1 ? true : false;
+			}
+		}
+		
+		fn.calledWithExactly = function() {
+			var callList = [];
 			
-			for(var i = 0; i < arguments.length; i++) {
-				for(var j = 0; j < fn.args.length; j++) {
-					return arguments[i] === fn.args[j] ? true : false
+			for(var i = 0, l = arguments.length; i < l; i++) {
+				if([].indexOf.call(fn.args, arguments[i]) !== -1) {
+					callList.push(arguments[i]);
+				}
+				else {
+					return false;
 				}
 			}
+			
+			return callList.length === fn.args.length ? true : false;
 		}
 		
 		if(!object)
