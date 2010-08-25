@@ -92,6 +92,10 @@ TestCase("stubbing", {
 		
 		assertTrue(sut.some_method.calledWith("bread", "eggs"));
 		assertTrue(sut.some_method.calledWith("bread", "milk", "eggs"));
-		assertTrue(sut.some_method.calledWith("fire"));
+	},
+	"test that called with returns false if arguments aren't found": function(){
+		sut.some_method("bread", "milk", "eggs");
+		
+		assertFalse(sut.some_method.calledWith("fire", "death"));
 	}
 });

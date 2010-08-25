@@ -34,16 +34,12 @@ var mockery = {
 		}
 		
 		fn.calledWith = function() {
-			var contains = false;
 			
-			for(var i = 0; i < fn.args.length; i++) {
-				for(var j = 0; j < arguments.length; j++) {
-					if(fn.args[i] === arguments[j])
-					  contains = true;
+			for(var i = 0; i < arguments.length; i++) {
+				for(var j = 0; j < fn.args.length; j++) {
+					return arguments[i] === fn.args[j] ? true : false
 				}
 			}
-			
-			return contains;
 		}
 		
 		if(!object)
