@@ -73,7 +73,7 @@ var xrayspex = (function(){
 			}
 			
 			var expectations = {
-				times: 1
+				verifications: []
 			};
 			
 			mockObj.restore = function() {
@@ -82,16 +82,33 @@ var xrayspex = (function(){
 			
 			mockObj.expects = function(method) {
 				expectations.method = this[method];
+				expectations.verifications = [{call: expectations.method['calledExactly'], params: 1}];
 				
 				return {
 					times: function(num) {
-						expectations.times = num;
+						expectations.verifications = [{call: expectations.method['calledExactly'], params: num}];
+					},
+					atLeast: function(min) {
+						expectations.times = min;
+						expectations.verifications = [{call: expectations.method['calledAtLeast'], params: min}];
+					},
+					atMost: function(max) {
+						expectations.times = max;
+						expectations.verifications = [{call: expectations.method['calledAtMost'], params: max}];
+					},
+					between: function(min, max) {
+						expectations.verifications = [{call: expectations.method['calledAtLeast'], params: min}, {call: expectations.method['calledAtMost'], params: max}];
 					}
 				}
 			}
 			
 			mockObj.verify = function() {
-				return expectations.method.calledExactly(expectations.times);
+				for(var i = 0; i < expectations.verifications.length; i++) {
+					if(!expectations.verifications[i].call(expectations.verifications[i].params))
+					  return false;
+				}
+				
+				return true;
 			}
 		}
 	}
