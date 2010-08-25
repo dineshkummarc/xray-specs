@@ -158,9 +158,9 @@ TestCase("mocking", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects returns true if specified method is called": function(){
-		namespace.collaborator.some_method();
+		namespace.collaborator.another_method();
 		
-		namespace.collaborator.expects("some_method");
+		namespace.collaborator.expects("another_method");
 		
 		assertTrue(namespace.collaborator.verify());
 	}

@@ -69,7 +69,7 @@ var xrayspex = (function(){
 			var mockObj = parent[name] = object || {};
 			
 			for(var method in mockObj) {
-				this.stub(mockObj, "some_method");
+				this.stub(mockObj, method);
 			}
 			
 			mockObj.expectations = false;
