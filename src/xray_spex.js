@@ -16,6 +16,12 @@ var xrayspex = (function(){
 			}
 			
 			fn.wasCalled = false;
+			
+			fn.times = function(num) {
+				for(var i = 0; i < num - 1; i++) {
+					fn();
+				}
+			}
 
 			fn.restore = function() {
 				object[method] = original;
@@ -118,8 +124,8 @@ var xrayspex = (function(){
 							this.atMost(max);
 						}
 					},
-					withArguments: function() {
-						
+					withArguments: function(args) {
+						expectations.set('calledWith', args);
 					}
 				}
 			}
@@ -128,7 +134,10 @@ var xrayspex = (function(){
 				if(expectations.num() === 0)
 				  expectations.set('calledAtLeast', 1);
 				
-				return expectations.verify();
+				var _return = expectations.verify();
+				this.restore();
+				
+				return _return;
 			}
 		}
 	}
