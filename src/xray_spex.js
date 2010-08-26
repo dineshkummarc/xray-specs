@@ -75,12 +75,17 @@ var xrayspex = (function(){
 			var expectations = (function(){
 				var verifications = [];
 				
-				returns {
-					set: function(type, params) {
-						verifications.push({check: expectations.method[type], params: params});
+				return {
+					set: function(check, params) {
+						verifications.push({fn: expectations.method[check], params: params});
 					},
-					check: function(index) {
-						return verifications[index].check(verifications[index].params);
+					verify: function() {
+						for(var i = 0, l = this.num(); i < l; i++) {
+							if(!verifications[i].fn(verifications[i].params))
+							  return false;
+						}
+						
+						return true;
 					},
 					num: function() {
 						return verifications.length;
@@ -92,8 +97,8 @@ var xrayspex = (function(){
 				parent[name] = original;
 			}
 			
-			mockObj.expects = function(method) {
-				expectations.method = this[method];
+			mockObj.expects = function(methodName) {
+				expectations.method = this[methodName];
 				
 				return {
 					toBeCalled: {
@@ -114,22 +119,16 @@ var xrayspex = (function(){
 						}
 					},
 					withArguments: function() {
-						//expectations.verifications.push({call: expectations.method['calledWith'], params: arguments})
+						
 					}
 				}
 			}
 			
 			mockObj.verify = function() {
-				if(expectations.num === 0) {
-					expectations.set('calledExactly', 1);
-				}
+				if(expectations.num() === 0)
+				  expectations.set('calledAtLeast', 1);
 				
-				for(var i = 0; i < expectations.num; i++) {
-					if(!expectations.check(i))
-					  return false;
-				}
-				
-				return true;
+				return expectations.verify();
 			}
 		}
 	}

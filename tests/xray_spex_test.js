@@ -150,7 +150,7 @@ TestCase("mocking", {
 	"test that expects returns true if specified method is called": function(){
 		namespace.collaborator.expects("another_method");
 		namespace.collaborator.another_method();
-		
+
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that expects returns false if specified method is not called": function(){
@@ -229,9 +229,6 @@ TestCase("mocking", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects allows for expected arguments to be specified": function(){
-		//namespace.collaborator.expects("another_method").withArguments('hello', 'yes', 10);
-		//namespace.collaborator.another_method('hello', 'yes', 10);
-		
-		//assertTrue(namespace.collaborator.verify());
+		namespace.collaborator.expects("another_method").withArguments('hello', 'yes', 10);
 	}
 });
