@@ -16,12 +16,6 @@ var xrayspex = (function(){
 			}
 			
 			fn.wasCalled = false;
-			
-			fn.times = function(num) {
-				for(var i = 0; i < num - 1; i++) {
-					fn();
-				}
-			}
 
 			fn.restore = function() {
 				object[method] = original;

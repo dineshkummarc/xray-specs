@@ -177,62 +177,94 @@ TestCase("mocking", {
 	},
 	"test that expects allow for a number of times to be specified": function(){
 		namespace.collaborator.expects("another_method").toBeCalled.times(3);
-		namespace.collaborator.another_method.times(2);	
+		
+		for(var i = 0; i < 5; i++) {
+			namespace.collaborator.another_method();
+		}
 		
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.atLeast() should returns false if not called enough times": function(){
 		namespace.collaborator.expects("another_method").toBeCalled.atLeast(3);
-		namespace.collaborator.another_method.times(2);
+		
+		for(var i = 0; i < 2; i++) {
+			namespace.collaborator.another_method();
+		}
 		
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.atLeast() should returns true if not called enough times": function(){
 		namespace.collaborator.expects("another_method").toBeCalled.atLeast(3);
-		namespace.collaborator.another_method.times(4);
+		
+		for(var i = 0; i < 4; i++) {
+			namespace.collaborator.another_method();
+		}
 		
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that expects.atMost() returns true if called less than threshold": function(){
 		namespace.collaborator.expects("another_method").toBeCalled.atMost(3);
-		namespace.collaborator.another_method.times(3);
+		
+		for(var i = 0; i < 3; i++) {
+			namespace.collaborator.another_method();
+		}
 		
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test description of functionality": function(){
 		namespace.collaborator.expects("another_method").toBeCalled.atMost(3);
-		namespace.collaborator.another_method.times(5);
+		
+		for(var i = 0; i < 5; i++) {
+			namespace.collaborator.another_method();
+		}
 		
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns false if called less than minimum": function(){
 		namespace.collaborator.expects("another_method").toBeCalled.between(3, 5);
-		namespace.collaborator.another_method.times(2);
+		
+		for(var i = 0; i < 2; i++) {
+			namespace.collaborator.another_method();
+		}
 		
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns false if called more than maximum": function(){
 		namespace.collaborator.expects("another_method").toBeCalled.between(3, 5);
-		namespace.collaborator.another_method.times(7);
 		
+		for(var i = 0; i < 7; i++) {
+			namespace.collaborator.another_method();
+		}		
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns true if called between minimum and maximum": function(){
 		namespace.collaborator.expects("another_method").toBeCalled.between(3, 5);
-		namespace.collaborator.another_method.times(5);
+		
+		for(var i = 0; i < 5; i++) {
+			namespace.collaborator.another_method();
+		}
 		
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that you can chain atLeast and atMost calls": function(){
 		namespace.collaborator.expects("another_method").toBeCalled.atLeast(3).atMost(5);
-		namespace.collaborator.another_method.times(5);
+
+		for(var i = 0; i < 5; i++) {
+			namespace.collaborator.another_method();
+		}
 		
 		assertTrue(namespace.collaborator.verify());
 	},
-	"test that expects allows for expected arguments to be specified": function(){
+	"test that expects.withArguments() returns true if any supplied arguments are found": function(){
 		namespace.collaborator.expects("another_method").withArguments('hello', 'yes', '10');
-		namespace.collaborator.another_method('hello', 'yes', "10");
+		namespace.collaborator.another_method('yes', "10");
 		
 		assertTrue(namespace.collaborator.verify());
+	},
+	"test that expects.withArguments() returns false if supplied arguments are not found": function(){
+		namespace.collaborator.expects("another_method").withArguments('hello', 'yes', '10');
+		namespace.collaborator.another_method("hello", "fire");
+		
+		assertFalse(namespace.collaborator.verify());
 	}
 });
