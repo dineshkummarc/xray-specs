@@ -1,7 +1,7 @@
 TestCase("stubbing", {
 	setUp: function(){
 		sut = {};
-		xrayspex.stub(sut, "some_method");
+		xrayspecs.stub(sut, "some_method");
 	},
 	"test that stubs are created on the target object": function(){
 		assertEquals(typeof sut.some_method, "function");
@@ -13,13 +13,13 @@ TestCase("stubbing", {
 	},
 	"test that original functions are restored": function(){
 		var original = sut.another_method = function() {};
-		xrayspex.stub(sut, "another_method");
+		xrayspecs.stub(sut, "another_method");
 		sut.another_method.restore();
 		
 		assertEquals(original, sut.another_method);
 	},
 	"test that it returns an anonymous function if no object reference is provided": function(){
-		var anonStub = xrayspex.stub();
+		var anonStub = xrayspecs.stub();
 		
 		assertEquals("function", typeof anonStub);
 	},
@@ -109,7 +109,7 @@ TestCase("mocking", {
 			sut: {}
 		};
 		
-		xrayspex.mock(namespace, 'collaborator', {
+		xrayspecs.mock(namespace, 'collaborator', {
 			some_method: function(){},
 			another_method: function(){}
 		});
@@ -122,7 +122,7 @@ TestCase("mocking", {
 		assertTrue(typeof namespace.collaborator.another_method === "function");
 	},
 	"test that an empty object is created if no structure is defined": function(){
-		xrayspex.mock(namespace, "anonymous");
+		xrayspecs.mock(namespace, "anonymous");
 		
 		assertTrue(typeof namespace.anonymous === "object");
 	},
@@ -138,7 +138,7 @@ TestCase("mocking", {
 		
 		var original = namespace.exisisting_object;
 		
-		xrayspex.mock(namespace, "exisisting_object", {
+		xrayspecs.mock(namespace, "exisisting_object", {
 			some_method: function(){},
 			another_method: function(){}
 		});
@@ -154,7 +154,7 @@ TestCase("mocking", {
 		
 		var original = namespace.exisisting_object;
 		
-		xrayspex.mock(namespace, "exisisting_object", {
+		xrayspecs.mock(namespace, "exisisting_object", {
 			some_method: function(){},
 			another_method: function(){}
 		});
