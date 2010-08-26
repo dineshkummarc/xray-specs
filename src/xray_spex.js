@@ -114,7 +114,7 @@ var xrayspex = (function(){
 						}
 					},
 					withArguments: function() {
-						expectations.verifications.push({call: expectations.method['calledWith'], params: arguments})
+						//expectations.verifications.push({call: expectations.method['calledWith'], params: arguments})
 					}
 				}
 			}
