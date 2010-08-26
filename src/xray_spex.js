@@ -72,9 +72,21 @@ var xrayspex = (function(){
 				this.stub(mockObj, method);
 			}
 			
-			var expectations = {
-				verifications: []
-			};
+			var expectations = (function(){
+				var verifications = [];
+				
+				returns {
+					set: function(type, params) {
+						verifications.push({check: expectations.method[type], params: params});
+					},
+					check: function(index) {
+						return verifications[index].check(verifications[index].params);
+					},
+					num: function() {
+						return verifications.length;
+					}
+				}
+			}());
 			
 			mockObj.restore = function() {
 				parent[name] = original;
@@ -86,14 +98,14 @@ var xrayspex = (function(){
 				return {
 					toBeCalled: {
 						times: function(num) {
-							expectations.verifications.push({call: expectations.method['calledExactly'], params: num});
+							expectations.set('calledExactly', num);
 						},
 						atLeast: function(min) {
-							expectations.verifications.push({call: expectations.method['calledAtLeast'], params: min});
+							expectations.set('calledAtLeast', min);
 							return this;
 						},
 						atMost: function(max) {
-							expectations.verifications.push({call: expectations.method['calledAtMost'], params: max});
+							expectations.set('calledAtMost', max);
 							return this;
 						},
 						between: function(min, max) {
@@ -102,18 +114,18 @@ var xrayspex = (function(){
 						}
 					},
 					withArguments: function() {
-						
+						expectations.verifications.push({call: expectations.method['calledWith'], params: arguments})
 					}
 				}
 			}
 			
 			mockObj.verify = function() {
-				if(expectations.verifications.length === 0) {
-					expectations.verifications = [{call: expectations.method['calledExactly'], params: 1}]
+				if(expectations.num === 0) {
+					expectations.set('calledExactly', 1);
 				}
 				
-				for(var i = 0; i < expectations.verifications.length; i++) {
-					if(!expectations.verifications[i].call(expectations.verifications[i].params))
+				for(var i = 0; i < expectations.num; i++) {
+					if(!expectations.check(i))
 					  return false;
 				}
 				
