@@ -1,4 +1,4 @@
-var xrayspex = (function(){
+var xrayspecs = (function(){
 	
 	return {
 		stub: function(object, method) {
