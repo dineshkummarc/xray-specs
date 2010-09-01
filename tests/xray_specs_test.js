@@ -195,7 +195,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects allow for a number of times to be specified": function(){
-		namespace.collaborator.expects("another_method").to_be_called.times(3);
+		namespace.collaborator.expects("another_method").to_be_called(3);
 		
 		for(var i = 0; i < 5; i++) {
 			namespace.collaborator.another_method();
@@ -204,7 +204,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.atLeast() should returns false if not called enough times": function(){
-		namespace.collaborator.expects("another_method").to_be_called.at_least(3);
+		namespace.collaborator.expects("another_method").to_be_called().at_least(3);
 		
 		for(var i = 0; i < 2; i++) {
 			namespace.collaborator.another_method();
@@ -213,7 +213,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.atLeast() should returns true if not called enough times": function(){
-		namespace.collaborator.expects("another_method").to_be_called.at_least(3);
+		namespace.collaborator.expects("another_method").to_be_called().at_least(3);
 		
 		for(var i = 0; i < 4; i++) {
 			namespace.collaborator.another_method();
@@ -222,7 +222,7 @@ TestCase("mock call expectations", {
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that expects.atMost() returns true if called less than threshold": function(){
-		namespace.collaborator.expects("another_method").to_be_called.at_most(3);
+		namespace.collaborator.expects("another_method").to_be_called().at_most(3);
 		
 		for(var i = 0; i < 3; i++) {
 			namespace.collaborator.another_method();
@@ -231,7 +231,7 @@ TestCase("mock call expectations", {
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test description of functionality": function(){
-		namespace.collaborator.expects("another_method").to_be_called.at_most(3);
+		namespace.collaborator.expects("another_method").to_be_called().at_most(3);
 		
 		for(var i = 0; i < 5; i++) {
 			namespace.collaborator.another_method();
@@ -240,7 +240,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns false if called less than minimum": function(){
-		namespace.collaborator.expects("another_method").to_be_called.between(3, 5);
+		namespace.collaborator.expects("another_method").to_be_called().between(3, 5);
 		
 		for(var i = 0; i < 2; i++) {
 			namespace.collaborator.another_method();
@@ -249,7 +249,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns false if called more than maximum": function(){
-		namespace.collaborator.expects("another_method").to_be_called.between(3, 5);
+		namespace.collaborator.expects("another_method").to_be_called().between(3, 5);
 		
 		for(var i = 0; i < 7; i++) {
 			namespace.collaborator.another_method();
@@ -257,7 +257,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns true if called between minimum and maximum": function(){
-		namespace.collaborator.expects("another_method").to_be_called.between(3, 5);
+		namespace.collaborator.expects("another_method").to_be_called().between(3, 5);
 		
 		for(var i = 0; i < 5; i++) {
 			namespace.collaborator.another_method();
@@ -266,7 +266,7 @@ TestCase("mock call expectations", {
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that you can chain atLeast and atMost calls": function(){
-		namespace.collaborator.expects("another_method").to_be_called.at_least(3).at_most(5);
+		namespace.collaborator.expects("another_method").to_be_called().at_least(3).at_most(5);
 
 		for(var i = 0; i < 5; i++) {
 			namespace.collaborator.another_method();
