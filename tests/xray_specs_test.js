@@ -288,7 +288,7 @@ TestCase("mock argument expectations", {
 		});
 	},
 	"test that withExactArguments returns true if verification matches called arguments": function(){
-		namespace.collaborator.expects("some_method").with_args.that_match_exactly("so", "much", "style", "that", "it's", "wasting");
+		namespace.collaborator.expects("some_method").with_args("so", "much", "style", "that", "it's", "wasting");
 		namespace.collaborator.some_method("so", "much", "fuck", "that", "it's", "wasting");
 		
 		assertTrue(namespace.collaborator.verify());

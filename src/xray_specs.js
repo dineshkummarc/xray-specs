@@ -131,9 +131,18 @@ var xray_specs = (function(){
 							this.at_most(max);
 						}
 					},
-					with_args: {
-						that_match_exactly: function() {
-							expectations.set('called_with_exactly', arguments);
+					with_args: function() {
+						var methods = {
+							that_match_exactly: function() {
+								expectations.set('called_with_exactly', arguments);
+							}
+						}
+						
+						if(arguments) {
+							methods.that_match_exactly(arguments);
+						}
+						else {
+							return methods;
 						}
 					}
 				}
