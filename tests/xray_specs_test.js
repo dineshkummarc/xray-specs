@@ -38,68 +38,68 @@ TestCase("stubbing", {
 		
 		assertEquals(3, sut.some_method.called);
 	},
-	"test that wasCalled returns true if called": function(){
+	"test that was_called returns true if called": function(){
 		sut.some_method();
-		assertTrue(sut.some_method.wasCalled);
+		assertTrue(sut.some_method.was_called);
 	},
-	"test that wasCalled returns false if not called": function(){
-		assertFalse(sut.some_method.wasCalled);
+	"test that was_called returns false if not called": function(){
+		assertFalse(sut.some_method.was_called);
 	},
-	"test that calledAtLeast returns true if below threshold": function(){
+	"test that called_at_least returns true if below threshold": function(){
 		sut.some_method();
 		sut.some_method();
 		sut.some_method();
 		
-		assertTrue(sut.some_method.calledAtLeast(3));
+		assertTrue(sut.some_method.called_at_least(3));
 	},
-	"test that calledAtLeast returns false if above threshold": function(){
+	"test that called_at_least returns false if above threshold": function(){
 		sut.some_method();
 		sut.some_method();
 		sut.some_method();
 		
-		assertFalse(sut.some_method.calledAtLeast(5));
+		assertFalse(sut.some_method.called_at_least(5));
 	},
-	"test that calledAtMost returns true if call number is above threshold": function(){
+	"test that called_at_most returns true if call number is above threshold": function(){
 		sut.some_method();
 		sut.some_method();
 		sut.some_method();
 		
-		assertTrue(sut.some_method.calledAtMost(3));
+		assertTrue(sut.some_method.called_at_most(3));
 	},
-	"test that calledAtMost returns false if call number is below threshold": function(){
+	"test that called_at_most returns false if call number is below threshold": function(){
 		sut.some_method();
 		sut.some_method();
 		sut.some_method();
 		
-		assertFalse(sut.some_method.calledAtMost(1));
+		assertFalse(sut.some_method.called_at_most(1));
 	},
-	"test calledExactly returns true if called that many times": function(){
+	"test called_exactly returns true if called that many times": function(){
 		sut.some_method();
 		sut.some_method();
 		sut.some_method();
 		
-		assertTrue(sut.some_method.calledExactly(3));
+		assertTrue(sut.some_method.called_exactly(3));
 	},
-	"test calledExactly returns false if not called that many times": function(){
+	"test called_exactly returns false if not called that many times": function(){
 		sut.some_method();
 		
-		assertFalse(sut.some_method.calledExactly(3));
+		assertFalse(sut.some_method.called_exactly(3));
 	},
 	"test that a stub records the arguments that it is called with": function(){
 		sut.some_method("bread", "milk", "eggs");
 		
 		assertEquals(["bread", "milk", "eggs"], sut.some_method.args);
 	},
-	"test that calledWith returns true if any arguments match": function(){
+	"test that called_with returns true if any arguments match": function(){
 		sut.some_method("bread", "milk", "eggs");
 		
-		assertTrue(sut.some_method.calledWith("bread", "eggs"));
-		assertTrue(sut.some_method.calledWith("bread", "milk", "eggs"));
+		assertTrue(sut.some_method.called_with("bread", "eggs"));
+		assertTrue(sut.some_method.called_with("bread", "milk", "eggs"));
 	},
 	"test that called with returns false if arguments aren't found": function(){
 		sut.some_method("bread", "milk", "eggs");
 		
-		assertFalse(sut.some_method.calledWith("fire", "death"));
+		assertFalse(sut.some_method.called_with("fire", "death"));
 	}
 });
 
@@ -195,7 +195,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects allow for a number of times to be specified": function(){
-		namespace.collaborator.expects("another_method").toBeCalled.times(3);
+		namespace.collaborator.expects("another_method").to_be_called.times(3);
 		
 		for(var i = 0; i < 5; i++) {
 			namespace.collaborator.another_method();
@@ -204,7 +204,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.atLeast() should returns false if not called enough times": function(){
-		namespace.collaborator.expects("another_method").toBeCalled.atLeast(3);
+		namespace.collaborator.expects("another_method").to_be_called.at_least(3);
 		
 		for(var i = 0; i < 2; i++) {
 			namespace.collaborator.another_method();
@@ -213,7 +213,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.atLeast() should returns true if not called enough times": function(){
-		namespace.collaborator.expects("another_method").toBeCalled.atLeast(3);
+		namespace.collaborator.expects("another_method").to_be_called.at_least(3);
 		
 		for(var i = 0; i < 4; i++) {
 			namespace.collaborator.another_method();
@@ -222,7 +222,7 @@ TestCase("mock call expectations", {
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that expects.atMost() returns true if called less than threshold": function(){
-		namespace.collaborator.expects("another_method").toBeCalled.atMost(3);
+		namespace.collaborator.expects("another_method").to_be_called.at_most(3);
 		
 		for(var i = 0; i < 3; i++) {
 			namespace.collaborator.another_method();
@@ -231,7 +231,7 @@ TestCase("mock call expectations", {
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test description of functionality": function(){
-		namespace.collaborator.expects("another_method").toBeCalled.atMost(3);
+		namespace.collaborator.expects("another_method").to_be_called.at_most(3);
 		
 		for(var i = 0; i < 5; i++) {
 			namespace.collaborator.another_method();
@@ -240,7 +240,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns false if called less than minimum": function(){
-		namespace.collaborator.expects("another_method").toBeCalled.between(3, 5);
+		namespace.collaborator.expects("another_method").to_be_called.between(3, 5);
 		
 		for(var i = 0; i < 2; i++) {
 			namespace.collaborator.another_method();
@@ -249,7 +249,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns false if called more than maximum": function(){
-		namespace.collaborator.expects("another_method").toBeCalled.between(3, 5);
+		namespace.collaborator.expects("another_method").to_be_called.between(3, 5);
 		
 		for(var i = 0; i < 7; i++) {
 			namespace.collaborator.another_method();
@@ -257,7 +257,7 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns true if called between minimum and maximum": function(){
-		namespace.collaborator.expects("another_method").toBeCalled.between(3, 5);
+		namespace.collaborator.expects("another_method").to_be_called.between(3, 5);
 		
 		for(var i = 0; i < 5; i++) {
 			namespace.collaborator.another_method();
@@ -266,7 +266,7 @@ TestCase("mock call expectations", {
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that you can chain atLeast and atMost calls": function(){
-		namespace.collaborator.expects("another_method").toBeCalled.atLeast(3).atMost(5);
+		namespace.collaborator.expects("another_method").to_be_called.at_least(3).at_most(5);
 
 		for(var i = 0; i < 5; i++) {
 			namespace.collaborator.another_method();
@@ -281,15 +281,15 @@ TestCase("mock argument expectations", {
 		namespace = {
 			sut: {}
 		};
-		
+
 		xray_specs.mock(namespace, 'collaborator', {
 			some_method: function(){},
 			another_method: function(){}
 		});
 	},
 	"test that withExactArguments returns true if verification matches called arguments": function(){
-		namespace.collaborator.expects("some_method").withExactArguments("so", "much", "style", "that", "it's", "wasting");
-		namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
+		namespace.collaborator.expects("some_method").with_args.that_match_exactly("so", "much", "style", "that", "it's", "wasting");
+		namespace.collaborator.some_method("so", "much", "fuck", "that", "it's", "wasting");
 		
 		assertTrue(namespace.collaborator.verify());
 	}

@@ -3,47 +3,47 @@ var xray_specs = (function(){
 	return {
 		stub: function(object, method) {
 			var original,
-				returnValue,
+				return_value,
 				called = 0;
 
 			var fn = function() {
 				called++;
 				fn.called = called;
-				fn.wasCalled = true;
+				fn.was_called = true;
 				fn.args = arguments;
 
-				return returnValue;
+				return return_value;
 			}
 			
-			fn.wasCalled = false;
+			fn.was_called = false;
 
 			fn.restore = function() {
 				object[method] = original;
 			}
 
 			fn.returns = function(value) {
-				returnValue = value;
+				return_value = value;
 			}
 
-			fn.calledAtLeast = function(times) {
+			fn.called_at_least = function(times) {
 				return times <= called ? true : false;
 			}
 
-			fn.calledAtMost = function(times) {
+			fn.called_at_most = function(times) {
 				return times >= called ? true : false;
 			}
 
-			fn.calledExactly = function(times) {
+			fn.called_exactly = function(times) {
 				return times === called ? true : false;
 			}
 
-			fn.calledWith = function() {
+			fn.called_with = function() {
 				for(var i = 0, l = arguments.length; i < l; i++) {
 					return [].indexOf.call(fn.args, arguments[i]) !== -1 ? true : false;
 				}
 			}
 
-			fn.calledWithExactly = function() {
+			fn.called_with_exactly = function() {
 				var callList = [];
 
 				for(var i = 0, l = arguments.length; i < l; i++) {
@@ -114,37 +114,39 @@ var xray_specs = (function(){
 				expectations.method = this[methodName];
 				
 				return {
-					toBeCalled: {
+					to_be_called: {
 						times: function(num) {
-							expectations.set('calledExactly', num);
+							expectations.set('called_exactly', num);
 						},
-						atLeast: function(min) {
-							expectations.set('calledAtLeast', min);
+						at_least: function(min) {
+							expectations.set('called_at_least', min);
 							return this;
 						},
-						atMost: function(max) {
-							expectations.set('calledAtMost', max);
+						at_most: function(max) {
+							expectations.set('called_at_most', max);
 							return this;
 						},
 						between: function(min, max) {
-							this.atLeast(min);
-							this.atMost(max);
+							this.at_least(min);
+							this.at_most(max);
 						}
 					},
-					withExactArguments: function() {
-						expectations.set('calledWithExactly', arguments);
+					with_args: {
+						that_match_exactly: function() {
+							expectations.set('called_with_exactly', arguments);
+						}
 					}
 				}
 			}
 			
 			mockObj.verify = function() {
 				if(expectations.num() === 0)
-				  expectations.set('calledAtLeast', 1);
+				  expectations.set('called_at_least', 1);
 				
-				var _return = expectations.verify();
+				var __return = expectations.verify();
 				this.restore();
 				
-				return _return;
+				return __return;
 			}
 		}
 	}
