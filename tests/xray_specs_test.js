@@ -1,7 +1,7 @@
 TestCase("stubbing", {
 	setUp: function(){
 		sut = {};
-		xrayspex.stub(sut, "some_method");
+		xrayspecs.stub(sut, "some_method");
 	},
 	"test that stubs are created on the target object": function(){
 		assertEquals(typeof sut.some_method, "function");
@@ -13,13 +13,13 @@ TestCase("stubbing", {
 	},
 	"test that original functions are restored": function(){
 		var original = sut.another_method = function() {};
-		xrayspex.stub(sut, "another_method");
+		xrayspecs.stub(sut, "another_method");
 		sut.another_method.restore();
 		
 		assertEquals(original, sut.another_method);
 	},
 	"test that it returns an anonymous function if no object reference is provided": function(){
-		var anonStub = xrayspex.stub();
+		var anonStub = xrayspecs.stub();
 		
 		assertEquals("function", typeof anonStub);
 	},
@@ -109,23 +109,22 @@ TestCase("mock setup", {
 			sut: {}
 		};
 		
-		xrayspex.mock(namespace, 'collaborator', {
+		xrayspecs.mock(namespace, 'collaborator', {
 			some_method: function(){},
 			another_method: function(){}
 		});
 	},
-	"test that object is created when mocked": function(){		
-		jstestdriver.console.log(namespace.collaborator);	
-		assertTrue(typeof namespace.collaborator === "object");
+	"test that object is created when mocked": function(){
+		assertObject(namespace.collaborator);
 	},
 	"test that the mock inherits the supplied object": function(){
-		assertTrue(typeof namespace.collaborator.some_method === "function");
-		assertTrue(typeof namespace.collaborator.another_method === "function");
+		assertFunction(namespace.collaborator.some_method);
+		assertFunction(namespace.collaborator.another_method);
 	},
 	"test that an empty object is created if no structure is defined": function(){
-		xrayspex.mock(namespace, "anonymous");
+		xrayspecs.mock(namespace, "anonymous");
 		
-		assertTrue(typeof namespace.anonymous === "object");
+		assertObject(namespace.anonymous);
 	},
 	"test that the mock is removed when restore is called": function(){
 		namespace.collaborator.restore();
@@ -144,10 +143,10 @@ TestCase("mock setup", {
 			calculate: function(){}
 		};
 		
-		xrayspex.mock(namespace, "exisisting_object");
-		
-		assertFunction(namespace.exisiting_object.do_something);
-		assertFunction(namespace.exisiting_object.calculate);
+		xrayspecs.mock(namespace, "exisisting_object");
+
+		assertFunction(namespace.exisisting_object.do_something);
+		assertFunction(namespace.exisisting_object.calculate);
 	},
 	"test that the original object is restored when mock.restore is called": function(){
 		namespace.exisisting_object = function(){
@@ -156,7 +155,7 @@ TestCase("mock setup", {
 		
 		var original = namespace.exisisting_object;
 		
-		xrayspex.mock(namespace, "exisisting_object", {
+		xrayspecs.mock(namespace, "exisisting_object", {
 			some_method: function(){},
 			another_method: function(){}
 		});
@@ -173,49 +172,29 @@ TestCase("mock call expectations", {
 			sut: {}
 		};
 		
-		xrayspex.mock(namespace, 'collaborator', {
+		xrayspecs.mock(namespace, "collaborator", {
 			some_method: function(){},
 			another_method: function(){}
 		});
 	},
-	"test that a stub is created if expects is called on undefined function": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
+	"test that a stub is created if expects is called on undefined function": function(){		
 		namespace.collaborator.expects("a_new_method");
 		namespace.collaborator.a_new_method();
 		
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that expects returns true if specified method is called": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("another_method");
 		namespace.collaborator.another_method();
 
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that expects returns false if specified method is not called": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("another_method");
 		
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects allow for a number of times to be specified": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("another_method").toBeCalled.times(3);
 		
 		for(var i = 0; i < 5; i++) {
@@ -225,11 +204,6 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.atLeast() should returns false if not called enough times": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("another_method").toBeCalled.atLeast(3);
 		
 		for(var i = 0; i < 2; i++) {
@@ -239,11 +213,6 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.atLeast() should returns true if not called enough times": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("another_method").toBeCalled.atLeast(3);
 		
 		for(var i = 0; i < 4; i++) {
@@ -253,11 +222,6 @@ TestCase("mock call expectations", {
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that expects.atMost() returns true if called less than threshold": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("another_method").toBeCalled.atMost(3);
 		
 		for(var i = 0; i < 3; i++) {
@@ -267,11 +231,6 @@ TestCase("mock call expectations", {
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test description of functionality": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("another_method").toBeCalled.atMost(3);
 		
 		for(var i = 0; i < 5; i++) {
@@ -281,11 +240,6 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns false if called less than minimum": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("another_method").toBeCalled.between(3, 5);
 		
 		for(var i = 0; i < 2; i++) {
@@ -295,11 +249,6 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns false if called more than maximum": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("another_method").toBeCalled.between(3, 5);
 		
 		for(var i = 0; i < 7; i++) {
@@ -308,11 +257,6 @@ TestCase("mock call expectations", {
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that expects.between() to returns true if called between minimum and maximum": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("another_method").toBeCalled.between(3, 5);
 		
 		for(var i = 0; i < 5; i++) {
@@ -322,11 +266,6 @@ TestCase("mock call expectations", {
 		assertTrue(namespace.collaborator.verify());
 	},
 	"test that you can chain atLeast and atMost calls": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("another_method").toBeCalled.atLeast(3).atMost(5);
 
 		for(var i = 0; i < 5; i++) {
@@ -343,17 +282,12 @@ TestCase("mock argument expectations", {
 			sut: {}
 		};
 		
-		xrayspex.mock(namespace, 'collaborator', {
+		xrayspecs.mock(namespace, 'collaborator', {
 			some_method: function(){},
 			another_method: function(){}
 		});
 	},
 	"test that withExactArguments returns true if verification matches called arguments": function(){
-		xrayspex.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
-		});
-		
 		namespace.collaborator.expects("some_method").withExactArguments("so", "much", "style", "that", "it's", "wasting");
 		namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
 		

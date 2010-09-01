@@ -1,4 +1,4 @@
-var xrayspex = (function(){
+var xrayspecs = (function(){
 	
 	return {
 		stub: function(object, method) {
@@ -64,20 +64,22 @@ var xrayspex = (function(){
 			original = object[method];
 			object[method] = fn;
 		},
-		mock: function(parent, name, object) {
+		mock: function(parent, name, inherits) {
 			var original = parent[name];
 			var mockObj = {};
 			
-			if(parent[name]) {
-				mockObj = parent[name];
+			if(inherits) {
+				mockObj = inherits;
 			}
-			else if(object) {
-				mockObject = object;
+			else if(parent[name]) {
+				mockObj = parent[name];
 			}
 			
 			for(var method in mockObj) {
 				this.stub(mockObj, method);
 			}
+			
+			parent[name] = mockObj;
 			
 			var expectations = (function(){
 				var verifications = [];
@@ -106,7 +108,7 @@ var xrayspex = (function(){
 			
 			mockObj.expects = function(methodName) {
 				if(!this[methodName]) {
-					xrayspex.stub(this, methodName);
+					xrayspecs.stub(this, methodName);
 				}
 				
 				expectations.method = this[methodName];

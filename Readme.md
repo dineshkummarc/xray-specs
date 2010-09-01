@@ -1,4 +1,4 @@
 
-# Xray Spex
+# Xray Specs
 
-A simple, ligh-weight mocking library for javascript applications.
+A simple, light-weight mocking library for javascript applications.
