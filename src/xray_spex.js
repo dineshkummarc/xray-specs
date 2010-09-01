@@ -66,7 +66,14 @@ var xrayspex = (function(){
 		},
 		mock: function(parent, name, object) {
 			var original = parent[name];
-			var mockObj = parent[name] = object || {};
+			var mockObj = {};
+			
+			if(parent[name]) {
+				mockObj = parent[name];
+			}
+			else if(object) {
+				mockObject = object;
+			}
 			
 			for(var method in mockObj) {
 				this.stub(mockObj, method);
@@ -98,6 +105,10 @@ var xrayspex = (function(){
 			}
 			
 			mockObj.expects = function(methodName) {
+				if(!this[methodName]) {
+					xrayspex.stub(this, methodName);
+				}
+				
 				expectations.method = this[methodName];
 				
 				return {
@@ -118,8 +129,8 @@ var xrayspex = (function(){
 							this.atMost(max);
 						}
 					},
-					withArguments: function(args) {
-						expectations.set('calledWith', args);
+					withExactArguments: function() {
+						expectations.set('calledWithExactly', arguments);
 					}
 				}
 			}
