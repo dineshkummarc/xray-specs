@@ -1,7 +1,7 @@
 TestCase("stubbing", {
 	setUp: function(){
 		sut = {};
-		xrayspecs.stub(sut, "some_method");
+		xray_specs.stub(sut, "some_method");
 	},
 	"test that stubs are created on the target object": function(){
 		assertEquals(typeof sut.some_method, "function");
@@ -13,13 +13,13 @@ TestCase("stubbing", {
 	},
 	"test that original functions are restored": function(){
 		var original = sut.another_method = function() {};
-		xrayspecs.stub(sut, "another_method");
+		xray_specs.stub(sut, "another_method");
 		sut.another_method.restore();
 		
 		assertEquals(original, sut.another_method);
 	},
 	"test that it returns an anonymous function if no object reference is provided": function(){
-		var anonStub = xrayspecs.stub();
+		var anonStub = xray_specs.stub();
 		
 		assertEquals("function", typeof anonStub);
 	},
@@ -109,7 +109,7 @@ TestCase("mock setup", {
 			sut: {}
 		};
 		
-		xrayspecs.mock(namespace, 'collaborator', {
+		xray_specs.mock(namespace, 'collaborator', {
 			some_method: function(){},
 			another_method: function(){}
 		});
@@ -122,7 +122,7 @@ TestCase("mock setup", {
 		assertFunction(namespace.collaborator.another_method);
 	},
 	"test that an empty object is created if no structure is defined": function(){
-		xrayspecs.mock(namespace, "anonymous");
+		xray_specs.mock(namespace, "anonymous");
 		
 		assertObject(namespace.anonymous);
 	},
@@ -143,7 +143,7 @@ TestCase("mock setup", {
 			calculate: function(){}
 		};
 		
-		xrayspecs.mock(namespace, "exisisting_object");
+		xray_specs.mock(namespace, "exisisting_object");
 
 		assertFunction(namespace.exisisting_object.do_something);
 		assertFunction(namespace.exisisting_object.calculate);
@@ -155,7 +155,7 @@ TestCase("mock setup", {
 		
 		var original = namespace.exisisting_object;
 		
-		xrayspecs.mock(namespace, "exisisting_object", {
+		xray_specs.mock(namespace, "exisisting_object", {
 			some_method: function(){},
 			another_method: function(){}
 		});
@@ -172,7 +172,7 @@ TestCase("mock call expectations", {
 			sut: {}
 		};
 		
-		xrayspecs.mock(namespace, "collaborator", {
+		xray_specs.mock(namespace, "collaborator", {
 			some_method: function(){},
 			another_method: function(){}
 		});
@@ -282,7 +282,7 @@ TestCase("mock argument expectations", {
 			sut: {}
 		};
 		
-		xrayspecs.mock(namespace, 'collaborator', {
+		xray_specs.mock(namespace, 'collaborator', {
 			some_method: function(){},
 			another_method: function(){}
 		});

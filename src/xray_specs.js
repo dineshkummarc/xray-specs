@@ -1,4 +1,4 @@
-var xrayspecs = (function(){
+var xray_specs = (function(){
 	
 	return {
 		stub: function(object, method) {
@@ -108,7 +108,7 @@ var xrayspecs = (function(){
 			
 			mockObj.expects = function(methodName) {
 				if(!this[methodName]) {
-					xrayspecs.stub(this, methodName);
+					xray_specs.stub(this, methodName);
 				}
 				
 				expectations.method = this[methodName];
