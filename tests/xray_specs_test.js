@@ -95,11 +95,17 @@ TestCase("stubbing", {
 		
 		assertTrue(sut.some_method.called_with("bread", "eggs"));
 		assertTrue(sut.some_method.called_with("bread", "milk", "eggs"));
+		assertTrue(sut.some_method.called_with("fire", "milk", "bread"));
 	},
 	"test that called with returns false if arguments aren't found": function(){
 		sut.some_method("bread", "milk", "eggs");
 		
 		assertFalse(sut.some_method.called_with("fire", "death"));
+	},
+	"test that caled_with_exactly returns true if arguments are the same": function(){
+		sut.some_method("bread", "milk", "eggs");
+		
+		assertTrue("message", sut.some_method.called_with_exactly('bread', 'milk', 'eggs'));
 	}
 });
 
@@ -306,8 +312,8 @@ TestCase("mock argument expectations", {
 		});
 	},
 	"test that withExactArguments returns true if verification matches called arguments": function(){
-		namespace.collaborator.expects("some_method").with_args("so", "much", "style", "that", "it's", "wasting");
-		namespace.collaborator.some_method("so", "much", "fuck", "that", "it's", "wasting");
+		namespace.collaborator.expects("some_method").with_args.that_match_exactly("so", "much", "style", "that", "it's", "wasting");
+		namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
 		
 		assertTrue(namespace.collaborator.verify());
 	}

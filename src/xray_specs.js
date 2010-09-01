@@ -39,8 +39,11 @@ var xray_specs = (function(){
 
 			fn.called_with = function() {
 				for(var i = 0, l = arguments.length; i < l; i++) {
-					return [].indexOf.call(fn.args, arguments[i]) !== -1 ? true : false;
+					if([].indexOf.call(fn.args, arguments[i]) !== -1)
+					  return true;
 				}
+				
+				return false;
 			}
 
 			fn.called_with_exactly = function() {
@@ -113,10 +116,11 @@ var xray_specs = (function(){
 				
 				expectations.method = this[methodName];
 				
-				return {
+				var api = {
 					to_be_called: {
 						times: function(num) {
 							expectations.set('called_exactly', num);
+							return api;
 						},
 						at_least: function(min) {
 							expectations.set('called_at_least', min);
@@ -129,23 +133,17 @@ var xray_specs = (function(){
 						between: function(min, max) {
 							this.at_least(min);
 							this.at_most(max);
+							return api;
 						}
 					},
-					with_args: function() {
-						var methods = {
-							that_match_exactly: function() {
-								expectations.set('called_with_exactly', arguments);
-							}
-						}
-						
-						if(arguments) {
-							methods.that_match_exactly(arguments);
-						}
-						else {
-							return methods;
+					with_args: {
+						that_match_exactly: function() {
+							expectations.set('called_with_exactly', arguments);
 						}
 					}
 				}
+				
+				return api;
 			}
 			
 			mockObj.verify = function() {
