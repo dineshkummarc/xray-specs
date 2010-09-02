@@ -326,10 +326,28 @@ TestCase("mock argument expectations", {
 			another_method: function(){}
 		});
 	},
-	"test that withExactArguments returns true if verification matches called arguments": function(){
-		namespace.collaborator.expects("some_method").with_args.that_match_exactly("so", "much", "style", "that", "it's", "wasting");
+	"test that that_match_exactly returns true if verification matches called arguments": function(){
+		namespace.collaborator.expects("some_method").with_args.that_match("so", "much", "style", "that", "it's", "wasting");
 		namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
 		
 		assertTrue(namespace.collaborator.verify());
+	},
+	"test that that_match_exactly returns false if verification do not match called arguments": function(){
+		namespace.collaborator.expects("some_method").with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+		namespace.collaborator.some_method("but", "you", "can", "never", "quarentine", "the", "past");
+		
+		assertFalse(namespace.collaborator.verify());
+	},
+	"test that_match returns true if any arguments match": function(){
+		namespace.collaborator.expects('some_method').with_args.that_include("so", "much", "style", "that", "it's", "wasting");
+		namespace.collaborator.some_method("so", "much", "style");
+		
+		assertTrue(namespace.collaborator.verify());
+	},
+	"test that_match returns false if all don't arguments match": function(){
+		namespace.collaborator.expects('some_method').with_args.that_include("so", "much", "style", "that", "it's", "wasting");
+		namespace.collaborator.some_method("but", "you", "can");
+		
+		assertFalse(namespace.collaborator.verify());
 	}
 });

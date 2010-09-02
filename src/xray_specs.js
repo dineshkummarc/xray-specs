@@ -138,8 +138,11 @@ var xray_specs = (function(){
 						}
 					},
 					with_args: {
-						that_match_exactly: function() {
+						that_match: function() {
 							expectations.set('called_with_exactly', arguments);
+						},
+						that_include: function() {
+							expectations.set('called_with', arguments);
 						}
 					}
 				}
