@@ -6,15 +6,15 @@ TestCase("stubbing", {
 	"test that stubs are created on the target object": function(){
 		assertEquals(typeof sut.some_method, "function");
 	},
-	"test that the stubbed function is removed when restore is called": function(){
-		sut.some_method.restore();
+	"test that the stubbed function is removed when reset is called": function(){
+		sut.some_method.reset();
 		
 		assertEquals("undefined", typeof sut.some_method);
 	},
-	"test that original functions are restored": function(){
+	"test that original functions are resetd": function(){
 		var original = sut.another_method = function() {};
 		xray_specs.stub(sut, "another_method");
-		sut.another_method.restore();
+		sut.another_method.reset();
 		
 		assertEquals(original, sut.another_method);
 	},
@@ -136,10 +136,31 @@ TestCase("stubbing", {
 	},
 	"test always_called_with returns true if arguments match for each call": function(){
 		sut.some_method("bread", "milk", "eggs");
+		sut.some_method("bread");
+		sut.some_method("milk", "eggs");
+		
+		assertTrue(sut.some_method.always_called_with("bread", "milk", "eggs"));
+	},
+	"test always_called_with returns false if arguments don't match for every call": function(){
+		sut.some_method("bread", "milk", "eggs");
+		sut.some_method("some", "other", "stuff");
+		sut.some_method("bread", "milk", "eggs");
+		
+		assertFalse(sut.some_method.always_called_with("bread", "milk", "eggs"));
+	},
+	"test always_called_with_exactly returns true if arguments match exactly for every call made": function(){
+		sut.some_method("bread", "milk", "eggs");
 		sut.some_method("bread", "milk", "eggs");
 		sut.some_method("bread", "milk", "eggs");
 		
-		assertTrue(sut.some_method.always_called_with("bread", "milk", "eggs"));
+		assertTrue(sut.some_method.always_called_with_exactly("bread", "milk", "eggs"));
+	},
+	"test always_called_with_exactly returns false if arguments do not match exactly for every call made": function(){
+		sut.some_method("bread", "milk", "eggs");
+		sut.some_method("bread");
+		sut.some_method("milk", "eggs");
+		
+		assertFalse(sut.some_method.always_called_with_exactly("bread", "milk", "eggs"));
 	}
 });
 
@@ -166,12 +187,12 @@ TestCase("mock setup", {
 		
 		assertObject(namespace.anonymous);
 	},
-	"test that the mock is removed when restore is called": function(){
-		namespace.collaborator.restore();
+	"test that the mock is removed when reset is called": function(){
+		namespace.collaborator.reset();
 		
 		assertUndefined(namespace.collaborator);
 	},
-	"test that restore is called when mock is verified": function(){
+	"test that reset is called when mock is verified": function(){
 		namespace.collaborator.expects('some_method');
 		namespace.collaborator.verify();
 		
@@ -188,7 +209,7 @@ TestCase("mock setup", {
 		assertFunction(namespace.exisisting_object.do_something);
 		assertFunction(namespace.exisisting_object.calculate);
 	},
-	"test that the original object is restored when mock.restore is called": function(){
+	"test that the original object is resetd when mock.reset is called": function(){
 		namespace.exisisting_object = function(){
 			// I'm already here.
 		}
@@ -200,7 +221,7 @@ TestCase("mock setup", {
 			another_method: function(){}
 		});
 		
-		namespace.exisisting_object.restore();
+		namespace.exisisting_object.reset();
 		
 		assertEquals(original, namespace.exisisting_object);
 	}
@@ -338,7 +359,7 @@ TestCase("mock argument expectations", {
 	},
 	"test that that_match returns true if verification matches called arguments": function(){
 		namespace.collaborator.expects("some_method")
-			.with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+			.with_args.matching("so", "much", "style", "that", "it's", "wasting");
 		
 		namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
 		
@@ -346,15 +367,23 @@ TestCase("mock argument expectations", {
 	},
 	"test that that_match returns false if verification do not match called arguments": function(){
 		namespace.collaborator.expects("some_method")
-			.with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+			.with_args.matching("so", "much", "style", "that", "it's", "wasting");
 		
-		namespace.collaborator.some_method("but", "you", "can", "never", "quarentine", "the", "past");
+		namespace.collaborator.some_method("but", "you", "can", "never", "quarantine", "the", "past");
+		
+		assertFalse(namespace.collaborator.verify());
+	},
+	"test that_match returns false if all arguments do not match": function(){
+		namespace.collaborator.expects("some_method")
+			.with_args.matching("so", "much", "style", "that", "it's", "wasting");
+		
+		namespace.collaborator.some_method("so", "much", "style");
 		
 		assertFalse(namespace.collaborator.verify());
 	},
 	"test that_include returns true if any arguments match": function(){
 		namespace.collaborator.expects('some_method')
-			.with_args.that_include("so", "much", "style", "that", "it's", "wasting");
+			.with_args.including("so", "much", "style", "that", "it's", "wasting");
 		
 		namespace.collaborator.some_method("so", "much", "style");
 		
@@ -362,7 +391,7 @@ TestCase("mock argument expectations", {
 	},
 	"test that_include returns false if all don't arguments match": function(){
 		namespace.collaborator.expects('some_method')
-			.with_args.that_include("so", "much", "style", "that", "it's", "wasting");
+			.with_args.including("so", "much", "style", "that", "it's", "wasting");
 						
 		namespace.collaborator.some_method("but", "you", "can");
 		
@@ -371,7 +400,7 @@ TestCase("mock argument expectations", {
 	"test that it still fails if not called the correct number of times with the correct arguments": function(){
 		namespace.collaborator.expects('some_method')
 			.to_be_called.times(3)
-				.with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+				.with_args.matching("so", "much", "style", "that", "it's", "wasting");
 		
 		for (var i=0; i < 3; i++) {
 			namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
@@ -382,7 +411,7 @@ TestCase("mock argument expectations", {
 	"test that it still fails if not called the correct number of times": function(){
 		namespace.collaborator.expects('some_method')
 			.to_be_called.times(3)
-				.with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+				.with_args.matching("so", "much", "style", "that", "it's", "wasting");
 		
 		for (var i=0; i < 2; i++) {
 			namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
@@ -393,14 +422,25 @@ TestCase("mock argument expectations", {
 	"test that_match passes if not matched for any call": function(){
 		namespace.collaborator.expects('some_method')
 			.to_be_called.times(3)
-				.with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+				.with_args.matching("so", "much", "style", "that", "it's", "wasting");
 		
 		namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
 		
 		for (var i=0; i < 2; i++) {
-			namespace.collaborator.some_method("but", "you", "can", "never", "quarentine", "the", "past");
+			namespace.collaborator.some_method("but", "you", "can", "never", "quarantine", "the", "past");
 		};
 		
 		assertTrue(namespace.collaborator.verify());
+	},
+	"test that_match fails if not matched by any arguments called": function(){
+		namespace.collaborator.expects('some_method')
+			.to_be_called.times(3)
+				.with_args.matching("so", "much", "style", "that", "it's", "wasting");
+				
+		for (var i=0; i < 3; i++) {
+			namespace.collaborator.some_method("but", "you", "can", "never", "quarantine", "the", "past");
+		};
+		
+		assertFalse(namespace.collaborator.verify());
 	}
 });

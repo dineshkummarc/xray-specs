@@ -4,12 +4,10 @@ var xray_specs = (function(){
 		stub: function(object, method) {
 			var original,
 				return_value,
-				called = 0,
 				called_with = [];
 
 			var fn = function() {
-				called++;
-				fn.called = called;
+				fn.called++;
 				fn.was_called = true;
 				called_with.push(arguments);
 				fn.args = arguments;
@@ -17,9 +15,10 @@ var xray_specs = (function(){
 				return return_value;
 			}
 			
+			fn.called = 0;
 			fn.was_called = false;
 
-			fn.restore = function() {
+			fn.reset = function() {
 				object[method] = original;
 			}
 
@@ -28,15 +27,15 @@ var xray_specs = (function(){
 			}
 
 			fn.called_at_least = function(times) {
-				return times <= called ? true : false;
+				return times <= fn.called ? true : false;
 			}
 
 			fn.called_at_most = function(times) {
-				return times >= called ? true : false;
+				return times >= fn.called ? true : false;
 			}
 
 			fn.called_exactly = function(times) {
-				return times === called ? true : false;
+				return times === fn.called ? true : false;
 			}
 
 			fn.called_with = function() {
@@ -70,7 +69,48 @@ var xray_specs = (function(){
 			}
 			
 			fn.always_called_with = function() {
+				var correct_calls = 0;
 				
+				for(var i = 0, l = called_with.length; i < l; i++) {
+					var called = false;
+					
+					for(var j = 0, l = arguments.length; j < l; j++) {
+						if([].indexOf.call(called_with[i], arguments[j]) !== -1)
+						  called = true;
+					}
+					
+					if(called)
+					  correct_calls++;
+				}
+				
+				if(correct_calls === called_with.length)
+				  return true;
+				
+				return false;
+			}
+			
+			fn.always_called_with_exactly = function() {
+				var correct_calls = 0;
+				
+				for(var i = 0, l = called_with.length; i < l; i++) {
+					var calls = 0;
+					
+					if(!called_with[i])
+					  return false;
+					
+					for(var j = 0, l = called_with[i].length; j < l; j++) {
+						if(called_with[i][j] === arguments[j])
+						  calls++;
+					}
+					
+					if(calls === called_with[i].length)
+					  correct_calls++
+				}
+				
+				if(correct_calls === called_with.length)
+				  return true;
+				
+				return false;
 			}
 
 			if(!object)
@@ -124,7 +164,7 @@ var xray_specs = (function(){
 				}
 			}());
 			
-			mockObj.restore = function() {
+			mockObj.reset = function() {
 				parent[name] = original;
 			}
 			
@@ -160,11 +200,19 @@ var xray_specs = (function(){
 						}
 					},
 					with_args: {
-						that_match: function() {
+						matching: function() {
 							expectations.set('called_with_exactly', arguments);
 						},
-						that_include: function() {
+						including: function() {
 							expectations.set('called_with', arguments);
+						},
+						always: {
+							matching: function() {
+								
+							},
+							including: function() {
+								
+							}
 						}
 					}
 				}
@@ -177,7 +225,7 @@ var xray_specs = (function(){
 				  expectations.set('was_called');
 				
 				var __return = expectations.verify();
-				this.restore();
+				this.reset();
 				
 				return __return;
 			}
