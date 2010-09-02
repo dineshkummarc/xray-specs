@@ -93,7 +93,7 @@ TestCase("stubbing", {
 	"test that called_with returns true if any arguments match": function(){
 		sut.some_method("bread", "milk", "eggs");
 		
-		assertTrue(sut.some_method.called_with("bread", "eggs"));
+		assertTrue(sut.some_method.called_with("eggs"));
 		assertTrue(sut.some_method.called_with("bread", "milk", "eggs"));
 		assertTrue(sut.some_method.called_with("fire", "milk", "bread"));
 	},
@@ -101,6 +101,12 @@ TestCase("stubbing", {
 		sut.some_method("bread", "milk", "eggs");
 		
 		assertFalse(sut.some_method.called_with("fire", "death"));
+	},
+	"test that called_with passes if arguments have been called at some point": function(){
+		sut.some_method("bread", "milk", "eggs");
+		sut.some_method("some", "other", "stuff");
+		
+		assertTrue(sut.some_method.called_with("bread", "milk", "eggs"));
 	},
 	"test that caled_with_exactly returns true if arguments are the same": function(){
 		sut.some_method("bread", "milk", "eggs");
@@ -117,10 +123,23 @@ TestCase("stubbing", {
 		
 		assertFalse(sut.some_method.called_with_exactly('bread', 'milk'));
 	},
-	"test that caled_with_exactly returns false if arguments are not called in the same order": function(){
+	"test that called_with_exactly returns false if arguments are not called in the same order": function(){
 		sut.some_method("bread", "milk", "eggs");
 		
 		assertFalse("message", sut.some_method.called_with_exactly('eggs', 'bread', 'milk'));
+	},
+	"test that called_with_exactly return true if arguments match exactly at some point": function(){
+		sut.some_method("bread", "milk", "eggs");
+		sut.some_method("some", "other", "stuff");
+		
+		assertTrue(sut.some_method.called_with_exactly("bread", "milk", "eggs"));
+	},
+	"test always_called_with returns true if arguments match for each call": function(){
+		sut.some_method("bread", "milk", "eggs");
+		sut.some_method("bread", "milk", "eggs");
+		sut.some_method("bread", "milk", "eggs");
+		
+		assertTrue(sut.some_method.always_called_with("bread", "milk", "eggs"));
 	}
 });
 
@@ -303,15 +322,6 @@ TestCase("mock call expectations", {
 		}
 		
 		assertTrue(namespace.collaborator.verify());
-	},
-	"test that you can chain atLeast and atMost calls": function(){
-		namespace.collaborator.expects("another_method").to_be_called.at_least(3).at_most(5);
-
-		for(var i = 0; i < 5; i++) {
-			namespace.collaborator.another_method();
-		}
-		
-		assertTrue(namespace.collaborator.verify());
 	}
 });
 
@@ -326,28 +336,71 @@ TestCase("mock argument expectations", {
 			another_method: function(){}
 		});
 	},
-	"test that that_match_exactly returns true if verification matches called arguments": function(){
-		namespace.collaborator.expects("some_method").with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+	"test that that_match returns true if verification matches called arguments": function(){
+		namespace.collaborator.expects("some_method")
+			.with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+		
 		namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
 		
 		assertTrue(namespace.collaborator.verify());
 	},
-	"test that that_match_exactly returns false if verification do not match called arguments": function(){
-		namespace.collaborator.expects("some_method").with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+	"test that that_match returns false if verification do not match called arguments": function(){
+		namespace.collaborator.expects("some_method")
+			.with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+		
 		namespace.collaborator.some_method("but", "you", "can", "never", "quarentine", "the", "past");
 		
 		assertFalse(namespace.collaborator.verify());
 	},
-	"test that_match returns true if any arguments match": function(){
-		namespace.collaborator.expects('some_method').with_args.that_include("so", "much", "style", "that", "it's", "wasting");
+	"test that_include returns true if any arguments match": function(){
+		namespace.collaborator.expects('some_method')
+			.with_args.that_include("so", "much", "style", "that", "it's", "wasting");
+		
 		namespace.collaborator.some_method("so", "much", "style");
 		
 		assertTrue(namespace.collaborator.verify());
 	},
-	"test that_match returns false if all don't arguments match": function(){
-		namespace.collaborator.expects('some_method').with_args.that_include("so", "much", "style", "that", "it's", "wasting");
+	"test that_include returns false if all don't arguments match": function(){
+		namespace.collaborator.expects('some_method')
+			.with_args.that_include("so", "much", "style", "that", "it's", "wasting");
+						
 		namespace.collaborator.some_method("but", "you", "can");
 		
 		assertFalse(namespace.collaborator.verify());
+	},
+	"test that it still fails if not called the correct number of times with the correct arguments": function(){
+		namespace.collaborator.expects('some_method')
+			.to_be_called.times(3)
+				.with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+		
+		for (var i=0; i < 3; i++) {
+			namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
+		};
+		
+		assertTrue(namespace.collaborator.verify());
+	},
+	"test that it still fails if not called the correct number of times": function(){
+		namespace.collaborator.expects('some_method')
+			.to_be_called.times(3)
+				.with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+		
+		for (var i=0; i < 2; i++) {
+			namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
+		};
+		
+		assertFalse(namespace.collaborator.verify());
+	},
+	"test that_match passes if not matched for any call": function(){
+		namespace.collaborator.expects('some_method')
+			.to_be_called.times(3)
+				.with_args.that_match("so", "much", "style", "that", "it's", "wasting");
+		
+		namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
+		
+		for (var i=0; i < 2; i++) {
+			namespace.collaborator.some_method("but", "you", "can", "never", "quarentine", "the", "past");
+		};
+		
+		assertTrue(namespace.collaborator.verify());
 	}
 });

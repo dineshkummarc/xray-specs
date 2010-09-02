@@ -4,12 +4,14 @@ var xray_specs = (function(){
 		stub: function(object, method) {
 			var original,
 				return_value,
-				called = 0;
+				called = 0,
+				called_with = [];
 
 			var fn = function() {
 				called++;
 				fn.called = called;
 				fn.was_called = true;
+				called_with.push(arguments);
 				fn.args = arguments;
 
 				return return_value;
@@ -38,21 +40,37 @@ var xray_specs = (function(){
 			}
 
 			fn.called_with = function() {
-				for(var i = 0, l = arguments.length; i < l; i++) {
-					if([].indexOf.call(fn.args, arguments[i]) !== -1)
-					  return true;
+				for(var i = 0, l = called_with.length; i < l; i++) {
+					for(var j = 0, l = arguments.length; j < l; j++) {
+						if([].indexOf.call(called_with[i], arguments[j]) !== -1)
+						  return true;
+					}
 				}
 				
 				return false;
 			}
 
 			fn.called_with_exactly = function() {
-				for(var i = 0, l = fn.args.length; i < l; i++) {
-					if(fn.args[i] !== arguments[i])
+				for(var i = 0, l = called_with.length; i < l; i++) {
+					var correct_call = 0;
+					
+					if(!called_with[i])
 					  return false;
+					
+					for(var j = 0, l = called_with[i].length; j < l; j++) {
+						if(called_with[i][j] === arguments[j])
+						  correct_call++;
+					}
+					
+					if(correct_call === called_with[i].length)
+					  return true;
 				}
 				
-				return true;
+				return false;
+			}
+			
+			fn.always_called_with = function() {
+				
 			}
 
 			if(!object)
@@ -121,19 +139,23 @@ var xray_specs = (function(){
 					to_be_called: {
 						times: function() {
 							expectations.set('called_exactly', arguments);
+							
 							return api;
 						},
 						at_least: function() {
 							expectations.set('called_at_least', arguments);
-							return this;
+							
+							return api;
 						},
 						at_most: function() {
 							expectations.set('called_at_most', arguments);
-							return this;
+							
+							return api;
 						},
 						between: function(min, max) {
 							this.at_least(min);
 							this.at_most(max);
+
 							return api;
 						}
 					},
