@@ -47,18 +47,12 @@ var xray_specs = (function(){
 			}
 
 			fn.called_with_exactly = function() {
-				var callList = [];
-
-				for(var i = 0, l = arguments.length; i < l; i++) {
-					if([].indexOf.call(fn.args, arguments[i]) !== -1) {
-						callList.push(arguments[i]);
-					}
-					else {
-						return false;
-					}
+				for(var i = 0, l = fn.args.length; i < l; i++) {
+					if(fn.args[i] !== arguments[i])
+					  return false;
 				}
-
-				return callList.length === fn.args.length ? true : false;
+				
+				return true;
 			}
 
 			if(!object)
@@ -89,12 +83,19 @@ var xray_specs = (function(){
 				
 				return {
 					set: function(check, params) {
-						verifications.push({fn: expectations.method[check], params: params});
+						verifications.push({check: expectations.method[check], params: params});
 					},
 					verify: function() {
 						for(var i = 0, l = this.num(); i < l; i++) {
-							if(!verifications[i].fn(verifications[i].params))
-							  return false;
+							var check = verifications[i].check;
+							
+							if(typeof check === 'function') {
+								if(!check.apply(this, verifications[i].params))
+								  return false;
+							}
+							else {
+								return check;
+							}
 						}
 						
 						return true;
@@ -119,15 +120,15 @@ var xray_specs = (function(){
 				var api = {
 					to_be_called: {
 						times: function(num) {
-							expectations.set('called_exactly', num);
+							expectations.set('called_exactly', arguments);
 							return api;
 						},
 						at_least: function(min) {
-							expectations.set('called_at_least', min);
+							expectations.set('called_at_least', arguments);
 							return this;
 						},
 						at_most: function(max) {
-							expectations.set('called_at_most', max);
+							expectations.set('called_at_most', arguments);
 							return this;
 						},
 						between: function(min, max) {
@@ -148,7 +149,7 @@ var xray_specs = (function(){
 			
 			mockObj.verify = function() {
 				if(expectations.num() === 0)
-				  expectations.set('called_at_least', 1);
+				  expectations.set('was_called');
 				
 				var __return = expectations.verify();
 				this.restore();

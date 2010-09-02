@@ -97,7 +97,7 @@ TestCase("stubbing", {
 		assertTrue(sut.some_method.called_with("bread", "milk", "eggs"));
 		assertTrue(sut.some_method.called_with("fire", "milk", "bread"));
 	},
-	"test that called with returns false if arguments aren't found": function(){
+	"test that called with returns false if none of the arguments match": function(){
 		sut.some_method("bread", "milk", "eggs");
 		
 		assertFalse(sut.some_method.called_with("fire", "death"));
@@ -105,7 +105,22 @@ TestCase("stubbing", {
 	"test that caled_with_exactly returns true if arguments are the same": function(){
 		sut.some_method("bread", "milk", "eggs");
 		
-		assertTrue("message", sut.some_method.called_with_exactly('bread', 'milk', 'eggs'));
+		assertTrue(sut.some_method.called_with_exactly('bread', 'milk', 'eggs'));
+	},
+	"test that caled_with_exactly returns false if arguments are not the same": function(){
+		sut.some_method("bread", "milk", "eggs");
+		
+		assertFalse(sut.some_method.called_with_exactly('bread', 'milk', 'flour'));
+	},
+	"test that caled_with_exactly returns false if not all arguments are present": function(){
+		sut.some_method("bread", "milk", "eggs");
+		
+		assertFalse(sut.some_method.called_with_exactly('bread', 'milk'));
+	},
+	"test that caled_with_exactly returns false if arguments are not called in the same order": function(){
+		sut.some_method("bread", "milk", "eggs");
+		
+		assertFalse("message", sut.some_method.called_with_exactly('eggs', 'bread', 'milk'));
 	}
 });
 
