@@ -119,15 +119,15 @@ var xray_specs = (function(){
 				
 				var api = {
 					to_be_called: {
-						times: function(num) {
+						times: function() {
 							expectations.set('called_exactly', arguments);
 							return api;
 						},
-						at_least: function(min) {
+						at_least: function() {
 							expectations.set('called_at_least', arguments);
 							return this;
 						},
-						at_most: function(max) {
+						at_most: function() {
 							expectations.set('called_at_most', arguments);
 							return this;
 						},
