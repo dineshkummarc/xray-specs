@@ -56,12 +56,12 @@ var xray_specs = (function(){
 					if(!called_with[i])
 					  return false;
 					
-					for(var j = 0, l = called_with[i].length; j < l; j++) {
+					for(var j = 0, l = arguments.length; j < l; j++) {
 						if(called_with[i][j] === arguments[j])
 						  correct_call++;
 					}
 					
-					if(correct_call === called_with[i].length)
+					if(correct_call === arguments.length && arguments.length === called_with[i].length)
 					  return true;
 				}
 				
@@ -205,14 +205,6 @@ var xray_specs = (function(){
 						},
 						including: function() {
 							expectations.set('called_with', arguments);
-						},
-						always: {
-							matching: function() {
-								
-							},
-							including: function() {
-								
-							}
 						}
 					}
 				}
