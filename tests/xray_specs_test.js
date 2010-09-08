@@ -464,5 +464,15 @@ TestCase("mock argument expectations", {
 		};
 		
 		assertTrue(namespace.collaborator.verify());
+	},
+	"test that a type of parameter can be expected": function(){
+		namespace.collaborator.expects('some_method')
+			.with_args.always_including(Function);
+			
+		namespace.collaborator.some_method(function() {
+			// I'm an anonymous function
+		});
+		
+		assertTrue(namespace.collaborator.verify());
 	}
 });
