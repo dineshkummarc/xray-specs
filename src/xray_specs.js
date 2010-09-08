@@ -68,7 +68,7 @@ var xray_specs = (function(){
 			fn.always_called_with = function() {
 				var correct_calls = 0;
 				
-				for(var i = 0, l = called_with.length; i < l; i++) {
+				for(var i = 0; i < called_with.length; i++) {
 					var called = false;
 					
 					for(var j = 0, l = arguments.length; j < l; j++) {
@@ -207,6 +207,9 @@ var xray_specs = (function(){
 						},
 						always_matching: function() {
 							expectations.set('always_called_with_exactly', arguments);
+						},
+						always_including: function() {
+							expectations.set('always_called_with', arguments);
 						}
 					}
 				}
