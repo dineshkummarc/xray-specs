@@ -50,11 +50,8 @@ var xray_specs = (function(){
 			}
 
 			fn.called_with_exactly = function() {
-				for(var i = 0, l = called_with.length; i < l; i++) {
+				for(var i = 0; i < called_with.length; i++) {
 					var correct_call = 0;
-					
-					if(!called_with[i])
-					  return false;
 					
 					for(var j = 0, l = arguments.length; j < l; j++) {
 						if(called_with[i][j] === arguments[j])
@@ -92,11 +89,13 @@ var xray_specs = (function(){
 			fn.always_called_with_exactly = function() {
 				var correct_calls = 0;
 				
-				for(var i = 0, l = called_with.length; i < l; i++) {
+				for(var i = 0; i < called_with.length; i++) {
 					var calls = 0;
 					
-					if(!called_with[i])
-					  return false;
+					if(!called_with[i]) {
+						jstestdriver.console.log(called_with, i);
+						return false;
+					}
 					
 					for(var j = 0, l = called_with[i].length; j < l; j++) {
 						if(called_with[i][j] === arguments[j])
@@ -205,6 +204,9 @@ var xray_specs = (function(){
 						},
 						including: function() {
 							expectations.set('called_with', arguments);
+						},
+						always_matching: function() {
+							expectations.set('always_called_with_exactly', arguments);
 						}
 					}
 				}

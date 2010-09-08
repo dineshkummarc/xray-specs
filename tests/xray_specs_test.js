@@ -419,7 +419,7 @@ TestCase("mock argument expectations", {
 		
 		assertFalse(namespace.collaborator.verify());
 	},
-	"test that_match passes if not matched for any call": function(){
+	"test that_match passes if matched for any call": function(){
 		namespace.collaborator.expects('some_method')
 			.to_be_called.times(3)
 				.with_args.matching("so", "much", "style", "that", "it's", "wasting");
@@ -442,5 +442,16 @@ TestCase("mock argument expectations", {
 		};
 		
 		assertFalse(namespace.collaborator.verify());
+	},
+	"test that always_matching passes if every call matches": function(){
+		namespace.collaborator.expects('some_method')
+			.to_be_called.times(3)
+				.with_args.always_matching("so", "much", "style", "that", "it's", "wasting");
+				
+		for (var i=0; i < 3; i++) {
+			namespace.collaborator.some_method("so", "much", "style", "that", "it's", "wasting");
+		};
+		
+		assertTrue(namespace.collaborator.verify());
 	}
 });
