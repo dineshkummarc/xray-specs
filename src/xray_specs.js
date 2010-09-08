@@ -41,8 +41,19 @@ var xray_specs = (function(){
 			fn.called_with = function() {
 				for(var i = 0, l = called_with.length; i < l; i++) {
 					for(var j = 0, l = arguments.length; j < l; j++) {
-						if([].indexOf.call(called_with[i], arguments[j]) !== -1)
-						  return true;
+						if([].indexOf.call(called_with[i], arguments[j]) !== -1) {
+							return true;
+						}
+						else if(typeof arguments[j] === "string") {
+							if(arguments[j].indexOf("type::") === 0) {
+								var type = arguments[j].substring(6);
+
+								for(var k = 0; k < called_with[i].length; k++) {
+									if(typeof called_with[i][k] === type)
+									  return true;
+								}
+							}
+						}
 					}
 				}
 				
@@ -54,8 +65,17 @@ var xray_specs = (function(){
 					var correct_call = 0;
 					
 					for(var j = 0, l = arguments.length; j < l; j++) {
-						if(called_with[i][j] === arguments[j])
-						  correct_call++;
+						if(called_with[i][j] === arguments[j]) {
+							correct_call++;
+						}
+						else if(typeof arguments[j] === "string") {
+							if(arguments[j].indexOf("type::") === 0) {
+								var type = arguments[j].substring(6);
+								
+								if(typeof called_with[i][j] === type)
+								  correct_call++;
+							}
+						}
 					}
 					
 					if(correct_call === arguments.length && arguments.length === called_with[i].length)
@@ -139,11 +159,14 @@ var xray_specs = (function(){
 				var verifications = [];
 				
 				return {
-					set: function(check, params) {
+					add: function(check, params) {
 						verifications.push({check: expectations.method[check], params: params});
 					},
 					verify: function() {
-						for(var i = 0, l = this.num(); i < l; i++) {
+						if(verifications.length === 0)
+						  this.add('was_called');
+						
+						for(var i = 0, l = verifications.length; i < l; i++) {
 							var check = verifications[i].check;
 							
 							if(typeof check === 'function') {
@@ -156,9 +179,6 @@ var xray_specs = (function(){
 						}
 						
 						return true;
-					},
-					num: function() {
-						return verifications.length;
 					}
 				}
 			}());
@@ -177,17 +197,17 @@ var xray_specs = (function(){
 				var api = {
 					to_be_called: {
 						times: function() {
-							expectations.set('called_exactly', arguments);
+							expectations.add('called_exactly', arguments);
 							
 							return api;
 						},
 						at_least: function() {
-							expectations.set('called_at_least', arguments);
+							expectations.add('called_at_least', arguments);
 							
 							return api;
 						},
 						at_most: function() {
-							expectations.set('called_at_most', arguments);
+							expectations.add('called_at_most', arguments);
 							
 							return api;
 						},
@@ -200,16 +220,16 @@ var xray_specs = (function(){
 					},
 					with_args: {
 						matching: function() {
-							expectations.set('called_with_exactly', arguments);
+							expectations.add('called_with_exactly', arguments);
 						},
 						including: function() {
-							expectations.set('called_with', arguments);
+							expectations.add('called_with', arguments);
 						},
 						always_matching: function() {
-							expectations.set('always_called_with_exactly', arguments);
+							expectations.add('always_called_with_exactly', arguments);
 						},
 						always_including: function() {
-							expectations.set('always_called_with', arguments);
+							expectations.add('always_called_with', arguments);
 						}
 					}
 				}
@@ -217,10 +237,7 @@ var xray_specs = (function(){
 				return api;
 			}
 			
-			mockObj.verify = function() {
-				if(expectations.num() === 0)
-				  expectations.set('was_called');
-				
+			mockObj.verify = function() {				
 				var __return = expectations.verify();
 				this.reset();
 				

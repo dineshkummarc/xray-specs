@@ -353,8 +353,8 @@ TestCase("mock argument expectations", {
 		};
 
 		xray_specs.mock(namespace, 'collaborator', {
-			some_method: function(){},
-			another_method: function(){}
+			some_method: {},
+			another_method: {}
 		});
 	},
 	"test that that_match returns true if verification matches called arguments": function(){
@@ -467,10 +467,20 @@ TestCase("mock argument expectations", {
 	},
 	"test that a type of parameter can be expected": function(){
 		namespace.collaborator.expects('some_method')
-			.with_args.always_including(Function);
+			.with_args.including("type::function");
 			
-		namespace.collaborator.some_method(function() {
-			// I'm an anonymous function
+		namespace.collaborator.some_method(32, "hello", 10, function() {
+			// 
+		});
+		
+		assertTrue(namespace.collaborator.verify());
+	},
+	"test that a type of parameter can be expected with matching": function(){
+		namespace.collaborator.expects('what_method')
+			.with_args.matching("type::number", "type::string", "type::number", "type::function");
+			
+		namespace.collaborator.what_method(32, "hello", 10, function() {
+			// 
 		});
 		
 		assertTrue(namespace.collaborator.verify());
