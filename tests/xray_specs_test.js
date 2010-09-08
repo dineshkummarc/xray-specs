@@ -486,3 +486,24 @@ TestCase("mock argument expectations", {
 		assertTrue(namespace.collaborator.verify());
 	}
 });
+
+TestCase("custom expectations", {
+	setUp: function(){
+		namespace = {
+			sut: {}
+		};
+
+		xray_specs.mock(namespace, 'collaborator', {
+			some_method: {},
+			another_method: {}
+		});
+	},
+	"test custom expectation": function(){
+		
+		
+		namespace.collaborator.expects("some_method")
+			.to_be_called_with_this;
+			
+		assertTrue(namespace.collaborator.verify());
+	}
+});
