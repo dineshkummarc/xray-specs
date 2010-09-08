@@ -497,12 +497,17 @@ TestCase("custom expectations", {
 			some_method: {},
 			another_method: {}
 		});
+		
+		namespace.collaborator.expectations.to_be_called_with_hello_3_times = function() {
+			this.to_be_called.times(3).with_args.matching("hello");
+		}
 	},
 	"test custom expectation": function(){
-		
-		
-		namespace.collaborator.expects("some_method")
-			.to_be_called_with_this;
+		namespace.collaborator.expects("some_method").to_be_called_with_hello_3_times();
+			
+		for (var i=0; i < 3; i++) {
+			namespace.collaborator.some_method("hello");
+		};
 			
 		assertTrue(namespace.collaborator.verify());
 	}

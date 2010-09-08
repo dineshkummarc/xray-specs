@@ -187,6 +187,46 @@ var xray_specs = (function(){
 				parent[name] = original;
 			}
 			
+			mockObj.expectations = {
+				to_be_called: {
+					times: function() {
+						expectations.add('called_exactly', arguments);
+						
+						return mockObj.expectations;
+					},
+					at_least: function() {
+						expectations.add('called_at_least', arguments);
+						
+						return mockObj.expectations;
+					},
+					at_most: function() {
+						expectations.add('called_at_most', arguments);
+						
+						return mockObj.expectations;
+					},
+					between: function(min, max) {
+						this.at_least(min);
+						this.at_most(max);
+
+						return mockObj.expectations;
+					}
+				},
+				with_args: {
+					matching: function() {
+						expectations.add('called_with_exactly', arguments);
+					},
+					including: function() {
+						expectations.add('called_with', arguments);
+					},
+					always_matching: function() {
+						expectations.add('always_called_with_exactly', arguments);
+					},
+					always_including: function() {
+						expectations.add('always_called_with', arguments);
+					}
+				}
+			};
+			
 			mockObj.expects = function(methodName) {
 				if(!this[methodName]) {
 					xray_specs.stub(this, methodName);
@@ -194,47 +234,7 @@ var xray_specs = (function(){
 				
 				expectations.method = this[methodName];
 				
-				var api = {
-					to_be_called: {
-						times: function() {
-							expectations.add('called_exactly', arguments);
-							
-							return api;
-						},
-						at_least: function() {
-							expectations.add('called_at_least', arguments);
-							
-							return api;
-						},
-						at_most: function() {
-							expectations.add('called_at_most', arguments);
-							
-							return api;
-						},
-						between: function(min, max) {
-							this.at_least(min);
-							this.at_most(max);
-
-							return api;
-						}
-					},
-					with_args: {
-						matching: function() {
-							expectations.add('called_with_exactly', arguments);
-						},
-						including: function() {
-							expectations.add('called_with', arguments);
-						},
-						always_matching: function() {
-							expectations.add('always_called_with_exactly', arguments);
-						},
-						always_including: function() {
-							expectations.add('always_called_with', arguments);
-						}
-					}
-				}
-				
-				return api;
+				return this.expectations;
 			}
 			
 			mockObj.verify = function() {				
