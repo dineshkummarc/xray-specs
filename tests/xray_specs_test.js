@@ -585,8 +585,6 @@ TestCase("mock return values", {
 			some_method: {},
 			another_method: {}
 		});
-		
-		namespace.collaborator.expectations.to_be_called_with_hello_3_times = hello_three_times;
 	},
 	"test that mock expectations can be set for return value": function(){
 		namespace.collaborator.expects('some_method')
