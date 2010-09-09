@@ -29,7 +29,42 @@ This can then be used by telling the mock to expect a certain method call. Final
 	
 ## Set up
 
-## 
+There are a few different ways to set up mock objects.
+
+Create a mock for an object that doesn't currently exist.
+
+	example = {};
+
+	xray_specs.mock(example, 'collaborator', {
+		some_method: {},
+		another_method: {}
+	});
+	
+Create a mock based on an existing object.
+
+	example = {
+		collaborator: {
+			some_method: {},
+			another_method: {}
+		}
+	};
+
+	xray_specs.mock(example, 'collaborator');
+	
+Create a mock that inherits an existing object and adds additional methods.
+
+	example = {
+		collaborator: {
+			some_method: {},
+			another_method: {}
+		}
+	};
+
+	xray_specs.mock(example, 'collaborator', {
+		do_something: {}
+	});
+
+
 	
 # Stubs and Spies
 
