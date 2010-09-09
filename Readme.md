@@ -185,5 +185,25 @@ If you need the mock to return a value after it's called you can chain a call at
 	
 # Stubs and Spies
 
+The mocks in xray_specs use stubs to replace each of the methods in the target object. If you don't need to create an entire mock object you can also stub single function directly and monitor their behaviour in a similar way.
 
+## Set up
+
+Coming soon...
+
+## Reset
+
+Coming soon...
+
+## Calls
+
+Coming soon...
+
+## Arguments
+
+Coming soon...
+
+## Returns
+
+Coming soon...
 	
