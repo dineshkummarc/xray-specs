@@ -144,7 +144,7 @@ These methods can be chained on to call expectations, e.g.
 	namespace.collaborator.some_method();
 	namespace.collaborator.some_method();
 	
-If you want to check the same arguments are supplied every time then you can use the `always_metching` and `always_including` methods. Both work in the same way as the standard methods, but will only pass if their expectations are matched for each call.
+If you want to check the same arguments are supplied every time then you can use the `always_matching` and `always_including` methods. Both work in the same way as the standard ones, but will only pass if their expectations are matched for each call.
 
 It is also possible to check parameters by type. For example, if you want to make sure that a callback function is passed, but don't want to tie in a specific function then you could do the following:
 
@@ -229,7 +229,25 @@ Monitoring calls made to a stub is done in a very similar fashion to mock object
 	
 ## Arguments
 
+Inspecting parameters also works in the same way as for mocks.
 
+`called_with` passes if any arguments match.
+
+	sut.some_method("bread", "milk", "eggs");
+	
+	assertTrue(sut.some_method.called_with("eggs")); // PASS
+	assertTrue(sut.some_method.called_with("bread", "milk", "eggs")); // PASS
+	assertTrue(sut.some_method.called_with("wood", "milk", "bread")); // PASS
+	
+`called_with_exactly` will only pass if all arguments match.
+	
+	sut.some_method("bread", "milk", "eggs");
+	
+	assertFalse(sut.some_method.called_with_exactly("bread", "milk", "eggs")); // PASS
+	assertFalse(sut.some_method.called_with_exactly("eggs", "milk", "bread")); // PASS
+	assertFalse(sut.some_method.called_with_exactly('bread', 'milk', 'flour')); // FAIL
+	
+`always_called_with` and `always_called_with_exactly` can be used to verify that methods are called with the expected parameters for each call.
 
 ## Returns
 
