@@ -75,6 +75,26 @@ You can also create an empty mock and dynamically add new stubbed methods as exp
 	namespace.collaborator.expects("a_new_method");
 	
 ## Expectations
+
+The most basic possible expectation is
+
+	namespace.collaborator.expects("some_method");
+	
+which simply states that it expects `some_method` to be called at least once with any arguments.
+
+You can also specify the number of calls that a method should receive.
+
+	namespace.collaborator.expects("some_method")
+		.to_be_called.times(3);
+		
+	namespace.collaborator.expects("some_method")
+		.to_be_called.at_least(2);
+		
+	namespace.collaborator.expects("some_method")
+		.to_be_called.at_most(3);
+		
+	namespace.collaborator.expects("some_method")
+		.to_be_called.between(3, 5);
 	
 # Stubs and Spies
 
