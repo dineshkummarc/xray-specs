@@ -142,7 +142,7 @@ It is also possible to check parameters by type. For example, if you want to mak
 	
 The type check is initiated is the string "type::" is found. Any valid javascript type can then be supplied. This is an initial attempt at implementing type-checking and may well change, use with care.
 
-# Custom expectations
+## Custom expectations
 
 You can also create custom expectations to make your tests more readable.
 
@@ -157,7 +157,7 @@ You can also create custom expectations to make your tests more readable.
 	namespace.collaborator.expects('some_method')
 		.called_with_hello_3_times();
 
-# Return values
+## Return values
 
 If you need the mock to return a value after it's called you can chain a call at the end of the expectation list
 
