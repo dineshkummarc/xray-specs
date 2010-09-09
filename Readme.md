@@ -9,7 +9,7 @@ Mocks are used to help keep unit tests focused solely on one section of code. Th
 
 ## Basic usage
 
-The following code will create a new object called collaborator within example. The third parameter is used to specify the functions that the mock will include, each of these will be replaced by a stub allowing for interactions to be recorded.
+The following code will create a new object called `collaborator` within `example`. The third parameter is used to specify the functions that the mock will include, each of these will be replaced by a stub allowing for interactions to be recorded.
 
 	example = {
 		sut: {}
@@ -20,7 +20,7 @@ The following code will create a new object called collaborator within example. 
 		another_method: {}
 	});
 	
-This can then be used by telling the mock to expect a certain method call. Finally, calling verify will return true or false depending on whether all expectations have been met. In this case it will return true because some_method has been called.
+This can then be used by telling the mock to expect a certain method call. Finally, calling verify will return true or false depending on whether all expectations have been met. In this case it will return true because `some_method` has been called.
 
 	namespace.collaborator.expects("some_method");
 	namespace.collaborator.some_method();
@@ -28,6 +28,8 @@ This can then be used by telling the mock to expect a certain method call. Final
 	assertTrue(namespace.collaborator.verify());
 	
 ## Set up
+
+## 
 	
 # Stubs and Spies
 
