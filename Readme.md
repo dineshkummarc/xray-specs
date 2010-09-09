@@ -105,17 +105,17 @@ Arguments that are received can also be specified.
 	namespace.collaborator.expects("some_method")
 		.with_args.matching("hello", "world");
 		
-	namespace.collaborator("hello", "world") // PASS
-	namespace.collaborator("hello") // FAIL
+	namespace.collaborator.some_method("hello", "world") // PASS
+	namespace.collaborator.some_method("hello") // FAIL
 		
 `including` is less strict and will pass if any arguments match the expectation.
 
 	namespace.collaborator.expects("some_method")
 		.with_args.matching("hello", "world");
 		
-	namespace.collaborator("hello", "world") // PASS
-	namespace.collaborator("hello") // PASS
-	namespace.collaborator() // FAIL
+	namespace.collaborator.some_method("hello", "world") // PASS
+	namespace.collaborator.some_method("hello") // PASS
+	namespace.collaborator.some_method() // FAIL
 	
 These methods can be chained on to call expectations, e.g.
 
@@ -125,11 +125,48 @@ These methods can be chained on to call expectations, e.g.
 
 `matching` and `including` will pass if their expectations are met at least once. So the following would pass verification for the above expectations.
 		
-	namespace.collaborator("hello", "world");
-	namespace.collaborator();
-	namespace.collaborator();
+	namespace.collaborator.some_method("hello", "world");
+	namespace.collaborator.some_method();
+	namespace.collaborator.some_method();
 	
 If you want to check the same arguments are supplied every time then you can use the `always_metching` and `always_including` methods. Both work in the same way as the standard methods, but will only pass if their expectations are matched for each call.
+
+It is also possible to check parameters by type. For example, if you want to make sure that a callback function is passed, but don't want to tie in a specific function then you could do the following:
+
+	namespace.collaborator.expects("some_method")
+		.with_args.matching("type::function");
+		
+	namespace.collaborator.some_method(function() {
+		// I'm an anonymous function!
+	});
+	
+The type check is initiated is the string "type::" is found. Any valid javascript type can then be supplied. This is an initial attempt at implementing type-checking and may well change, use with care.
+
+# Custom expectations
+
+You can also create custom expectations to make your tests more readable.
+
+	var hello_three_times = function() {
+		this.to_be_called.times(3).with_args.matching("hello");
+	};
+
+	namespace.collaborator.expectations.called_with_hello_3_times = hello_three_times;
+	
+	...
+	
+	namespace.collaborator.expects('some_method')
+		.called_with_hello_3_times();
+
+# Return values
+
+If you need the mock to return a value after it's called you can chain a call at the end of the expectation list
+
+	namespace.collaborator.expects('some_method')
+		.and_returns("hello");
+		
+	var return_value = namespace.collaborator.some_method();
+	
+	assertEquals("hello", return_value); // PASS
 	
 # Stubs and Spies
 
