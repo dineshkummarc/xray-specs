@@ -1,11 +1,14 @@
-
 # Xray Specs
 
-A simple, light-weight mocking library for javascript applications.
+Simple mocking and stub library. I decided to write my own library because I couldn't find support for the following:
 
-*Features*
++ Create mocks and stubs on undefined objects
++ Verification by type
++ Custom expectations
 
-+ Create mocks and stubs 
+See below for more information about these topics.
+
+Full API documentation coming soon...
 
 # Mock Objects
 
@@ -80,11 +83,11 @@ You can also create an empty mock and dynamically add new stubbed methods as exp
 	
 ## Reset
 
-Mocks need to be reset after use so that normal functionality is not permanently changed
+**Mocks need to be reset after use** so that normal functionality is not permanently changed
 
 	namespace.collaborator.reset()
 	
-I decided to make this a manual call because automatically reset on verification can lead to issues when sharing mocks across tests.
+I decided to make this a manual call because automatically resetting on verification can lead to issues when sharing mocks across tests.
 	
 ## Call expectations
 
