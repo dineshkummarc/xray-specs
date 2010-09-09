@@ -3,6 +3,10 @@
 
 A simple, light-weight mocking library for javascript applications.
 
+*Features*
+
++ Create mocks and stubs 
+
 # Mock Objects
 
 Mocks are used to help keep unit tests focused solely on one section of code. They do this by replacing any dependencies with intelligent objects that can record any interaction with the object under test.
@@ -73,6 +77,14 @@ You can also create an empty mock and dynamically add new stubbed methods as exp
 	...
 	
 	namespace.collaborator.expects("a_new_method");
+	
+## Reset
+
+Mocks need to be reset after use so that normal functionality is not permanently changed
+
+	namespace.collaborator.reset()
+	
+I decided to make this a manual call because automatically reset on verification can lead to issues when sharing mocks across tests.
 	
 ## Call expectations
 
@@ -169,7 +181,6 @@ If you need the mock to return a value after it's called you can chain a call at
 	assertEquals("hello", return_value); // PASS
 	
 # Stubs and Spies
-
 
 
 	
