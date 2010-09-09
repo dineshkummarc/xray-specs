@@ -74,7 +74,7 @@ You can also create an empty mock and dynamically add new stubbed methods as exp
 	
 	namespace.collaborator.expects("a_new_method");
 	
-## Expectations
+## Call expectations
 
 The most basic possible expectation is
 
@@ -96,6 +96,8 @@ You can also specify the number of calls that a method should receive.
 	namespace.collaborator.expects("some_method")
 		.to_be_called.between(3, 5);
 		
+## Argument expectations		
+
 Arguments that are received can also be specified. The method `matching` will only pass if all the arguments match exactly.
 
 	namespace.collaborator.expects("some_method")
