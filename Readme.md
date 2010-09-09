@@ -187,16 +187,28 @@ If you need the mock to return a value after it's called you can chain a call at
 
 The mocks in xray_specs use stubs to replace each of the methods in the target object. If you don't need to create an entire mock object you can also stub single function directly and monitor their behaviour in a similar way.
 
+## Basic usage
+
+	example = {
+		do_something: function() {}
+	};
+	
+	xray_specs.stub(sut, "some_method");
+	
+	example.some_method("hello world")
+	
+	assertTrue(example.some_method.called_with("hello world")); // PASS
+
 ## Set up
 
 Create a stub function on an object
 
-	sut = {};
+	example = {};
 	xray_specs.stub(sut, "some_method");
 	
 Replace an existing function with a stub
 
-	sut = {
+	example = {
 		another_method: function() {
 			
 		}
@@ -212,20 +224,20 @@ You can also create anonymous stubs that can be passed as callbacks, etc.
 
 As with mocks, **stubs must be reset after use** to ensure original state is maintained.
 
-	sut.another_method.reset();
+	example.another_method.reset();
 
 ## Calls
 
 Monitoring calls made to a stub is done in a very similar fashion to mock objects.
 
-	sut.some_method();
-	sut.some_method();
-	sut.some_method();
+	example.some_method();
+	example.some_method();
+	example.some_method();
 
-	sut.some_method.was_called; // TRUE
-	sut.some_method.called_at_least(3); //TRUE
-	sut.some_method.called_at_most(5); // TRUE
-	sut.some_method.called_exactly(3); // TRUE
+	example.some_method.was_called; // TRUE
+	example.some_method.called_at_least(3); //TRUE
+	example.some_method.called_at_most(5); // TRUE
+	example.some_method.called_exactly(3); // TRUE
 	
 ## Arguments
 
@@ -233,19 +245,19 @@ Inspecting parameters also works in the same way as for mocks.
 
 `called_with` passes if any arguments match.
 
-	sut.some_method("bread", "milk", "eggs");
+	example.some_method("bread", "milk", "eggs");
 	
-	assertTrue(sut.some_method.called_with("eggs")); // PASS
-	assertTrue(sut.some_method.called_with("bread", "milk", "eggs")); // PASS
-	assertTrue(sut.some_method.called_with("wood", "milk", "bread")); // PASS
+	assertTrue(example.some_method.called_with("eggs")); // PASS
+	assertTrue(example.some_method.called_with("bread", "milk", "eggs")); // PASS
+	assertTrue(example.some_method.called_with("wood", "milk", "bread")); // PASS
 	
 `called_with_exactly` will only pass if all arguments match.
 	
-	sut.some_method("bread", "milk", "eggs");
+	example.some_method("bread", "milk", "eggs");
 	
-	assertFalse(sut.some_method.called_with_exactly("bread", "milk", "eggs")); // PASS
-	assertFalse(sut.some_method.called_with_exactly("eggs", "milk", "bread")); // PASS
-	assertFalse(sut.some_method.called_with_exactly('bread', 'milk', 'flour')); // FAIL
+	assertFalse(example.some_method.called_with_exactly("bread", "milk", "eggs")); // PASS
+	assertFalse(example.some_method.called_with_exactly("eggs", "milk", "bread")); // PASS
+	assertFalse(example.some_method.called_with_exactly('bread', 'milk', 'flour')); // FAIL
 	
 `always_called_with` and `always_called_with_exactly` can be used to verify that methods are called with the expected parameters for each call.
 
