@@ -189,11 +189,30 @@ The mocks in xray_specs use stubs to replace each of the methods in the target o
 
 ## Set up
 
-Coming soon...
+Create a stub function on an object
+
+	sut = {};
+	xray_specs.stub(sut, "some_method");
+	
+Replace an existing function with a stub
+
+	sut = {
+		another_method: function() {
+			
+		}
+	};
+	
+	xray_specs.stub(sut, "another_method");
+	
+You can also create anonymous stubs that can be passed as callbacks, etc.
+
+	var anonStub = xray_specs.stub();
 
 ## Reset
 
-Coming soon...
+As with mocks, **stubs must be reset after use** to ensure original state is maintained.
+
+	sut.another_method.reset();
 
 ## Calls
 

@@ -14,7 +14,7 @@ TestCase("stubbing", {
 		assertEquals("undefined", typeof sut.some_method);
 	},
 	
-	"test that original functions are resetd": function(){
+	"test that original functions are reset": function(){
 		var original = sut.another_method = function() {};
 		xray_specs.stub(sut, "another_method");
 		sut.another_method.reset();
