@@ -5,9 +5,10 @@ var xray_specs = (function(){
 		stub: function(object, method) {
 			var real_object,
 				return_value,
-				called_with = [];
+				called_with = [],
+				fn;
 
-			var fn = function() {
+			fn = function() {
 				fn.called++;
 				fn.was_called = true;
 				called_with.push(arguments);
@@ -256,12 +257,12 @@ var xray_specs = (function(){
 				
 			};
 			
-			mock_object.expects = function(methodName) {
-				if(!this[methodName]) {
-					xray_specs.stub(this, methodName);
+			mock_object.expects = function(spy_on) {
+				if(!this[spy_on]) {
+					xray_specs.stub(this, spy_on);
 				}
 				
-				expectations.method = this[methodName];
+				expectations.method = this[spy_on];
 				
 				return this.expectations;
 			}
