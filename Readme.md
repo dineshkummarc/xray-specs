@@ -216,13 +216,25 @@ As with mocks, **stubs must be reset after use** to ensure original state is mai
 
 ## Calls
 
-Coming soon...
+Monitoring calls made to a stub is done in a very similar fashion to mock objects.
 
+	sut.some_method();
+	sut.some_method();
+	sut.some_method();
+
+	sut.some_method.was_called; // TRUE
+	sut.some_method.called_at_least(3); //TRUE
+	sut.some_method.called_at_most(5); // TRUE
+	sut.some_method.called_exactly(3); // TRUE
+	
 ## Arguments
 
-Coming soon...
+
 
 ## Returns
 
-Coming soon...
+Return values can be set using the `returns` method.
+
+	sut.some_method.returns("hello");
+	assertEquals("hello", sut.some_method()); // PASS
 	
