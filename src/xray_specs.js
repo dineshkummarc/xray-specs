@@ -1,8 +1,9 @@
 var xray_specs = (function(){
 	
 	return {
+		
 		stub: function(object, method) {
-			var original,
+			var real_object,
 				return_value,
 				called_with = [];
 
@@ -19,7 +20,7 @@ var xray_specs = (function(){
 			fn.was_called = false;
 
 			fn.reset = function() {
-				object[method] = original;
+				object[method] = real_object;
 			}
 
 			fn.returns = function(value) {
@@ -135,99 +136,127 @@ var xray_specs = (function(){
 			if(!object)
 			  return fn;
 
-			original = object[method];
+			real_object = object[method];
 			object[method] = fn;
 		},
+		
 		mock: function(parent, name, inherits) {
-			var original = parent[name];
-			var mockObj = {};
+			var real_object = parent[name],
+				mock_object,
+				that = this,
+				create_mock,
+				expectations;
 			
-			if(inherits) {
-				mockObj = inherits;
-			}
-			else if(parent[name]) {
-				mockObj = parent[name];
-			}
+			create_mock = (function() {
+				var stub_methods;
+				
+				if(inherits) {
+					mock_object = inherits;
+				}
+				else if(parent[name]) {
+					mock_object = parent[name];
+				}
+				else {
+					mock_object = {};
+				}
+				
+				stub_methods = (function() {
+					for(var method in mock_object) {
+						that.stub(mock_object, method);
+					}
+				}());
+
+				parent[name] = mock_object;
+			}());
 			
-			for(var method in mockObj) {
-				this.stub(mockObj, method);
-			}
-			
-			parent[name] = mockObj;
-			
-			var expectations = (function(){
-				var verifications = [];
+			expectations = (function(){
+				var verifications = [],
+					check_all_expectations;
+					
+				check_all_expectations = function() {
+					for(var i = 0, l = verifications.length; i < l; i++) {
+						var check = verifications[i].check;
+						
+						if(typeof check === 'function') {
+							if(!check.apply(this, verifications[i].params))
+							  return false;
+						}
+						else {
+							return check;
+						}
+					}
+				}
 				
 				return {
+					
 					add: function(check, params) {
 						verifications.push({check: expectations.method[check], params: params});
 					},
+					
 					verify: function() {
 						if(verifications.length === 0)
 						  this.add('was_called');
 						
-						for(var i = 0, l = verifications.length; i < l; i++) {
-							var check = verifications[i].check;
-							
-							if(typeof check === 'function') {
-								if(!check.apply(this, verifications[i].params))
-								  return false;
-							}
-							else {
-								return check;
-							}
-						}
-						
-						return true;
+						return check_all_expectations() === false ? false : true;
 					}
+					
 				}
+				
 			}());
 			
-			mockObj.reset = function() {
-				parent[name] = original;
+			mock_object.reset = function() {
+				parent[name] = real_object;
 			}
 			
-			mockObj.expectations = {
+			mock_object.expectations = {
 				to_be_called: {
 					times: function() {
 						expectations.add('called_exactly', arguments);
 						
-						return mockObj.expectations;
+						return mock_object.expectations;
 					},
+					
 					at_least: function() {
 						expectations.add('called_at_least', arguments);
 						
-						return mockObj.expectations;
+						return mock_object.expectations;
 					},
+					
 					at_most: function() {
 						expectations.add('called_at_most', arguments);
 						
-						return mockObj.expectations;
+						return mock_object.expectations;
 					},
+					
 					between: function(min, max) {
 						this.at_least(min);
 						this.at_most(max);
 
-						return mockObj.expectations;
+						return mock_object.expectations;
 					}
 				},
+				
 				with_args: {
 					matching: function() {
 						expectations.add('called_with_exactly', arguments);
 					},
+					
 					including: function() {
 						expectations.add('called_with', arguments);
 					},
+					
 					always_matching: function() {
 						expectations.add('always_called_with_exactly', arguments);
 					},
+					
 					always_including: function() {
 						expectations.add('always_called_with', arguments);
 					}
 				}
+				
 			};
 			
-			mockObj.expects = function(methodName) {
+			mock_object.expects = function(methodName) {
 				if(!this[methodName]) {
 					xray_specs.stub(this, methodName);
 				}
@@ -237,11 +266,8 @@ var xray_specs = (function(){
 				return this.expectations;
 			}
 			
-			mockObj.verify = function() {				
-				var __return = expectations.verify();
-				this.reset();
-				
-				return __return;
+			mock_object.verify = function() {				
+				return expectations.verify();
 			}
 		}
 	}
