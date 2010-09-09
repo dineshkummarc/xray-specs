@@ -98,7 +98,9 @@ You can also specify the number of calls that a method should receive.
 		
 ## Argument expectations		
 
-Arguments that are received can also be specified. The method `matching` will only pass if all the arguments match exactly.
+Arguments that are received can also be specified. 
+
+`matching` will only pass if all the arguments match exactly.
 
 	namespace.collaborator.expects("some_method")
 		.with_args.matching("hello", "world");
@@ -106,7 +108,7 @@ Arguments that are received can also be specified. The method `matching` will on
 	namespace.collaborator("hello", "world") // PASS
 	namespace.collaborator("hello") // FAIL
 		
-Including is less strict and will pass if any arguments match the expectation.
+`including` is less strict and will pass if any arguments match the expectation.
 
 	namespace.collaborator.expects("some_method")
 		.with_args.matching("hello", "world");
@@ -114,6 +116,20 @@ Including is less strict and will pass if any arguments match the expectation.
 	namespace.collaborator("hello", "world") // PASS
 	namespace.collaborator("hello") // PASS
 	namespace.collaborator() // FAIL
+	
+These methods can be chained on to call expectations, e.g.
+
+	namespace.collaborator.expects("some_method")
+		.to_be_called.at_least(3)
+			.with_args.matching("hello", "world");
+
+`matching` and `including` will pass if their expectations are met at least once. So the following would pass verification for the above expectations.
+		
+	namespace.collaborator("hello", "world");
+	namespace.collaborator();
+	namespace.collaborator();
+	
+If you want to check the same arguments are supplied every time then you can use the `always_metching` and `always_including` methods. Both work in the same way as the standard methods, but will only pass if their expectations are matched for each call.
 	
 # Stubs and Spies
 
