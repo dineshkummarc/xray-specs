@@ -95,6 +95,23 @@ You can also specify the number of calls that a method should receive.
 		
 	namespace.collaborator.expects("some_method")
 		.to_be_called.between(3, 5);
+		
+Arguments that are received can also be specified. The method `matching` will only pass if all the arguments match exactly.
+
+	namespace.collaborator.expects("some_method")
+		.with_args.matching("hello", "world");
+		
+	namespace.collaborator("hello", "world") // PASS
+	namespace.collaborator("hello") // FAIL
+		
+Including is less strict and will pass if any arguments match the expectation.
+
+	namespace.collaborator.expects("some_method")
+		.with_args.matching("hello", "world");
+		
+	namespace.collaborator("hello", "world") // PASS
+	namespace.collaborator("hello") // PASS
+	namespace.collaborator() // FAIL
 	
 # Stubs and Spies
 
