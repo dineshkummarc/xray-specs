@@ -64,7 +64,17 @@ Create a mock that inherits an existing object and adds additional methods.
 		do_something: {}
 	});
 
+You can also create an empty mock and dynamically add new stubbed methods as expectations are called (see below for more details).
 
+	example = {};
+
+	xray_specs.mock(example, 'collaborator');
+	
+	...
+	
+	namespace.collaborator.expects("a_new_method");
+	
+## Expectations
 	
 # Stubs and Spies
 
