@@ -34,17 +34,6 @@ TestCase("stubbing", {
 		assertEquals("hello", sut.some_method());
 	},
 	
-	"test that a stub records the number of times it is called": function(){
-		sut.some_method();
-		
-		assertEquals(1, sut.some_method.called);
-		
-		sut.some_method();
-		sut.some_method();
-		
-		assertEquals(3, sut.some_method.called);
-	},
-	
 	"test that was_called returns true if called": function(){
 		sut.some_method();
 		assertTrue(sut.some_method.was_called);
@@ -227,8 +216,8 @@ TestCase("mock setup", {
 	
 	"test that an object is created with the originals structure if defined": function(){
 		namespace.exisisting_object = {
-			do_something: function(){},
-			calculate: function(){}
+			do_something: {},
+			calculate: {}
 		};
 		
 		xray_specs.mock(namespace, "exisisting_object");
@@ -252,6 +241,23 @@ TestCase("mock setup", {
 		namespace.exisisting_object.reset();
 		
 		assertEquals(original, namespace.exisisting_object);
+	},
+	
+	"test that if the objects exists and an inherits object is passed then all methods are added to the mock": function(){
+		namespace.exisisting_object = {
+			do_something: function(){},
+			calculate: function(){}
+		};
+		
+		xray_specs.mock(namespace, "exisisting_object", {
+			another_method: {},
+			hello_world: {}
+		});
+
+		assertFunction(namespace.exisisting_object.do_something);
+		assertFunction(namespace.exisisting_object.calculate);
+		assertFunction(namespace.exisisting_object.another_method);
+		assertFunction(namespace.exisisting_object.hello_world);
 	}
 	
 });
@@ -544,7 +550,7 @@ TestCase("mock argument expectations", {
 	
 });
 
-TestCase("chanined expectations", {
+TestCase("mock custom expectations", {
 	setUp: function(){
 		namespace = {
 			sut: {}
@@ -557,8 +563,59 @@ TestCase("chanined expectations", {
 		
 		namespace.collaborator.expectations.to_be_called_with_hello_3_times = hello_three_times;
 	},
-	
-	"test that additional call expectations can be chained": function(){
+	"test custom expectations can be set": function(){
+		namespace.collaborator.expects('some_method')
+			.to_be_called_with_hello_3_times();
+			
+		for (var i=0; i < 3; i++) {
+			namespace.collaborator.some_method("hello");
+		};
+			
+		assertTrue(namespace.collaborator.verify());
+	}
+});
+
+TestCase("mock return values", {
+	setUp: function(){
+		namespace = {
+			sut: {}
+		};
+
+		xray_specs.mock(namespace, 'collaborator', {
+			some_method: {},
+			another_method: {}
+		});
 		
+		namespace.collaborator.expectations.to_be_called_with_hello_3_times = hello_three_times;
+	},
+	"test that mock expectations can be set for return value": function(){
+		namespace.collaborator.expects('some_method')
+			.and_returns("...and the cheque when it arrived we went Dutch, Dutch, Dutch");
+			
+		var return_value = namespace.collaborator.some_method();
+		
+		assertEquals("...and the cheque when it arrived we went Dutch, Dutch, Dutch", return_value);	
+		assertTrue(namespace.collaborator.verify());
+	},
+	"test that return values can be chained after call expectations": function(){
+		namespace.collaborator.expects('some_method')
+			.to_be_called.times(1)
+				.and_returns("...and the cheque when it arrived we went Dutch, Dutch, Dutch");
+			
+		var return_value = namespace.collaborator.some_method();
+		
+		assertEquals("...and the cheque when it arrived we went Dutch, Dutch, Dutch", return_value);	
+		assertTrue(namespace.collaborator.verify());
+	},
+	"test that return values can be chained to arg expectations": function(){
+		namespace.collaborator.expects('some_method')
+			.to_be_called.times(1)
+				.with_args.matching("hello")
+					.and_returns("...and the cheque when it arrived we went Dutch, Dutch, Dutch");
+			
+		var return_value = namespace.collaborator.some_method("hello");
+		
+		assertEquals("...and the cheque when it arrived we went Dutch, Dutch, Dutch", return_value);	
+		assertTrue(namespace.collaborator.verify());
 	}
 });
