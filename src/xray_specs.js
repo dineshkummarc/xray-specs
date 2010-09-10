@@ -4,43 +4,43 @@ var xray_specs = (function(){
 		
 		stub: function(parent_object, method) {
 			var real_method,
-				stubbed_method,
+				stubbed_function,
 				return_value,
 				recorded_calls = [],
 				called = 0;
 
-			stubbed_method = function() {
+			stubbed_function = function() {
 				called++;
-				stubbed_method.was_called = true;
 				recorded_calls.push(arguments);
-				stubbed_method.args = arguments;
 
 				return return_value;
 			}
-			
-			stubbed_method.was_called = false;
 
-			stubbed_method.reset = function() {
+			stubbed_function.reset = function() {
 				parent_object[method] = real_method;
 			}
 
-			stubbed_method.returns = function(value) {
+			stubbed_function.returns = function(value) {
 				return_value = value;
 			}
+			
+			stubbed_function.called = function() {
+				return called > 0 ? true : false;
+			}
 
-			stubbed_method.called_at_least = function(times) {
+			stubbed_function.called_at_least = function(times) {
 				return times <= called ? true : false;
 			}
 
-			stubbed_method.called_at_most = function(times) {
+			stubbed_function.called_at_most = function(times) {
 				return times >= called ? true : false;
 			}
 
-			stubbed_method.called_exactly = function(times) {
+			stubbed_function.called_exactly = function(times) {
 				return times === called ? true : false;
 			}
 
-			stubbed_method.called_with = function() {
+			stubbed_function.called_with = function() {
 				for(var i = 0, l = recorded_calls.length; i < l; i++) {
 					for(var j = 0, l = arguments.length; j < l; j++) {
 						if([].indexOf.call(recorded_calls[i], arguments[j]) !== -1) {
@@ -62,7 +62,7 @@ var xray_specs = (function(){
 				return false;
 			}
 
-			stubbed_method.called_with_exactly = function() {
+			stubbed_function.called_with_exactly = function() {
 				for(var i = 0; i < recorded_calls.length; i++) {
 					var correct_call = 0;
 					
@@ -87,7 +87,7 @@ var xray_specs = (function(){
 				return false;
 			}
 			
-			stubbed_method.always_called_with = function() {
+			stubbed_function.always_called_with = function() {
 				var correct_calls = 0;
 				
 				for(var i = 0; i < recorded_calls.length; i++) {
@@ -108,7 +108,7 @@ var xray_specs = (function(){
 				return false;
 			}
 			
-			stubbed_method.always_called_with_exactly = function() {
+			stubbed_function.always_called_with_exactly = function() {
 				var correct_calls = 0;
 				
 				for(var i = 0; i < recorded_calls.length; i++) {
@@ -130,10 +130,10 @@ var xray_specs = (function(){
 			}
 
 			if(!parent_object)
-			  return stubbed_method;
+			  return stubbed_function;
 
 			real_method = parent_object[method];
-			parent_object[method] = stubbed_method;
+			parent_object[method] = stubbed_function;
 		},
 		
 		mock: function(parent, name, inherits) {
@@ -199,7 +199,7 @@ var xray_specs = (function(){
 					
 					verify: function() {
 						if(verifications.length === 0)
-						  this.add('was_called');
+						  this.add('called');
 						
 						return check_all_expectations() === false ? false : true;
 					}

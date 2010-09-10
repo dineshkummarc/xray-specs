@@ -34,13 +34,13 @@ TestCase("stubbing", {
 		assertEquals("hello", sut.some_method());
 	},
 	
-	"test that was_called returns true if called": function(){
+	"test that called() returns true if called": function(){
 		sut.some_method();
-		assertTrue(sut.some_method.was_called);
+		assertTrue(sut.some_method.called());
 	},
 	
 	"test that was_called returns false if not called": function(){
-		assertFalse(sut.some_method.was_called);
+		assertFalse(sut.some_method.called());
 	},
 	
 	"test that called_at_least returns true if below threshold": function(){
@@ -87,12 +87,6 @@ TestCase("stubbing", {
 		sut.some_method();
 		
 		assertFalse(sut.some_method.called_exactly(3));
-	},
-	
-	"test that a stub records the arguments that it is called with": function(){
-		sut.some_method("bread", "milk", "eggs");
-		
-		assertEquals(["bread", "milk", "eggs"], sut.some_method.args);
 	},
 	
 	"test that called_with returns true if any arguments match": function(){
