@@ -19,6 +19,14 @@ var xray_specs = (function(){
 		}
 	}
 	
+	var check_types = function(argument_list, test_param) {
+		for_each(argument_list, function(param) {
+			check_type(param, test_param, function() {
+				status = true;
+			});
+		});
+	}
+	
 	return {
 		
 		stub: function(parent_object, method) {
@@ -73,11 +81,7 @@ var xray_specs = (function(){
 							status = true;
 						}
 						else if(typeof test_parameter === "string") {
-							for_each(current_call, function(param) {
-								check_type(param, test_parameter, function() {
-									status = true;
-								});
-							});
+							check_types(current_call, test_parameter);
 						}
 					});
 				}
