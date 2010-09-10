@@ -1,17 +1,40 @@
 var xray_specs = (function(){
 	
+	var for_each = function(obj, fn, that) {
+		for (var i = 0, l = obj.length; i < l; i++) {
+			fn.call(this, obj[i]);
+		}
+	}
+	
+	var check_type = function(obj, type, callback) {
+		if(type.indexOf("type::") === 0) {
+			type = type.substring(6);
+
+			if(typeof obj === type) {
+				if(callback)
+				  callback();
+				
+				return true;
+			}
+		}
+	}
+	
 	return {
 		
 		stub: function(parent_object, method) {
 			var real_method,
 				stubbed_function,
 				return_value,
-				recorded_calls = [],
+				received_calls,
 				called = 0;
+				
+			received_calls = (function() {
+				return [];
+			}());
 
 			stubbed_function = function() {
 				called++;
-				recorded_calls.push(arguments);
+				received_calls.push(arguments);
 
 				return return_value;
 			}
@@ -41,46 +64,47 @@ var xray_specs = (function(){
 			}
 
 			stubbed_function.called_with = function() {
-				for(var i = 0, l = recorded_calls.length; i < l; i++) {
-					for(var j = 0, l = arguments.length; j < l; j++) {
-						if([].indexOf.call(recorded_calls[i], arguments[j]) !== -1) {
-							return true;
+				var status = false;
+				
+				for(var i = 0, l = received_calls.length; i < l; i++) {
+					
+					for_each(arguments, function(test_parameter) {					
+						if([].indexOf.call(current_call, test_parameter) !== -1) {
+							status = true;
 						}
-						else if(typeof arguments[j] === "string") {
-							if(arguments[j].indexOf("type::") === 0) {
-								var type = arguments[j].substring(6);
-
-								for(var k = 0; k < recorded_calls[i].length; k++) {
-									if(typeof recorded_calls[i][k] === type)
-									  return true;
-								}
-							}
+						else if(typeof test_parameter === "string") {
+							for_each(current_call, function(param) {
+								check_type(param, test_parameter, function() {
+									status = true;
+								});
+							});
 						}
-					}
+					});
 				}
 				
-				return false;
+				return status;
 			}
 
 			stubbed_function.called_with_exactly = function() {
-				for(var i = 0; i < recorded_calls.length; i++) {
-					var correct_call = 0;
+				for(var i = 0; i < received_calls.length; i++) {
+					var correct_calls = 0,
+						current_call = received_calls[i];
 					
 					for(var j = 0, l = arguments.length; j < l; j++) {
-						if(recorded_calls[i][j] === arguments[j]) {
-							correct_call++;
+						var received_parameter = current_call[j],
+							test_parameter = arguments[j];
+						
+						if(received_parameter === test_parameter) {
+							correct_calls++;
 						}
-						else if(typeof arguments[j] === "string") {
-							if(arguments[j].indexOf("type::") === 0) {
-								var type = arguments[j].substring(6);
-								
-								if(typeof recorded_calls[i][j] === type)
-								  correct_call++;
-							}
+						else if(typeof test_parameter === "string") {
+							check_type(received_parameter, test_parameter, function() {
+								correct_calls++;
+							});
 						}
 					}
 					
-					if(correct_call === arguments.length && arguments.length === recorded_calls[i].length)
+					if(correct_calls === arguments.length && arguments.length === current_call.length)
 					  return true;
 				}
 				
@@ -90,11 +114,11 @@ var xray_specs = (function(){
 			stubbed_function.always_called_with = function() {
 				var correct_calls = 0;
 				
-				for(var i = 0; i < recorded_calls.length; i++) {
+				for(var i = 0; i < received_calls.length; i++) {
 					var called = false;
 					
 					for(var j = 0, l = arguments.length; j < l; j++) {
-						if([].indexOf.call(recorded_calls[i], arguments[j]) !== -1)
+						if([].indexOf.call(received_calls[i], arguments[j]) !== -1)
 						  called = true;
 					}
 					
@@ -102,7 +126,7 @@ var xray_specs = (function(){
 					  correct_calls++;
 				}
 				
-				if(correct_calls === recorded_calls.length)
+				if(correct_calls === received_calls.length)
 				  return true;
 				
 				return false;
@@ -111,29 +135,30 @@ var xray_specs = (function(){
 			stubbed_function.always_called_with_exactly = function() {
 				var correct_calls = 0;
 				
-				for(var i = 0; i < recorded_calls.length; i++) {
+				for(var i = 0; i < received_calls.length; i++) {
 					var calls = 0;
 					
-					for(var j = 0, l = recorded_calls[i].length; j < l; j++) {
-						if(recorded_calls[i][j] === arguments[j])
+					for(var j = 0, l = received_calls[i].length; j < l; j++) {
+						if(received_calls[i][j] === arguments[j])
 						  calls++;
 					}
 					
-					if(calls === recorded_calls[i].length)
+					if(calls === received_calls[i].length)
 					  correct_calls++
 				}
 				
-				if(correct_calls === recorded_calls.length)
+				if(correct_calls === received_calls.length)
 				  return true;
 				
 				return false;
 			}
 
-			if(!parent_object)
-			  return stubbed_function;
-
-			real_method = parent_object[method];
-			parent_object[method] = stubbed_function;
+			if(parent_object) {
+				real_method = parent_object[method];
+				parent_object[method] = stubbed_function;
+			}
+			
+			return stubbed_function;
 		},
 		
 		mock: function(parent, name, inherits) {
@@ -182,7 +207,7 @@ var xray_specs = (function(){
 						var check = verifications[i].check;
 						
 						if(typeof check === 'function') {
-							if(!check.apply(this, verifications[i].params))
+							if(!check.apply(null, verifications[i].params))
 							  return false;
 						}
 						else {
