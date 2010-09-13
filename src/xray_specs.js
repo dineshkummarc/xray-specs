@@ -75,13 +75,21 @@ var xray_specs = (function(){
 				var status = false;
 				
 				for(var i = 0, l = received_calls.length; i < l; i++) {
+					var current_call = received_calls[i];
 					
-					for_each(arguments, function(test_parameter) {					
+					for_each(arguments, function(test_parameter) {
+									
 						if([].indexOf.call(current_call, test_parameter) !== -1) {
 							status = true;
 						}
 						else if(typeof test_parameter === "string") {
-							check_types(current_call, test_parameter);
+							
+							for_each(current_call, function(param) {
+								check_type(param, test_parameter, function() {
+									status = true;
+								});
+							});
+							
 						}
 					});
 				}
