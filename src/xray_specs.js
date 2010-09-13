@@ -19,11 +19,6 @@ var xray_specs = (function(){
 		}
 	}
 	
-	var collection_includes = function(args, param) {
-		if([].indexOf.call(args, param) !== -1)
-		  return true
-	}
-	
 	return {
 		stub: function(parent_object, method) {
 			var real_method,
@@ -37,36 +32,6 @@ var xray_specs = (function(){
 				return {
 					calls: [],
 					includes: function(params) {
-						var correct = 0;
-						
-						for(var i = 0, l = this.calls.length; i < l; i++) {
-							var current_call = this.calls[i],
-								call_includes = false;
-
-							for_each(params, function(test_parameter) {
-
-								if([].indexOf.call(current_call, test_parameter) !== -1) {
-									call_includes = true;
-								}
-								else if(typeof test_parameter === "string") {
-
-									for_each(current_call, function(param) {
-										check_type(param, test_parameter, function() {
-											call_includes = true;
-										});
-									});
-
-								}
-							});
-							
-							if (call_includes) {
-								correct++;
-							};
-						}
-						
-						return correct;
-					},
-					matches: function(params) {
 						var correct = 0;
 						
 						for(var i = 0, l = this.calls.length; i < l; i++) {
@@ -89,9 +54,37 @@ var xray_specs = (function(){
 								}
 							});
 							
-							if (call_includes === current_call.length) {
+							if (call_includes) {
 								correct++;
 							};
+						}
+						
+						return correct;
+					},
+					matches: function(params) {
+						var correct = 0;
+						
+						for(var i = 0; i < this.calls.length; i++) {
+							var correct_calls = 0,
+								current_call = this.calls[i],
+								count = 0;
+								
+							for_each(params, function(test_parameter) {
+
+								if(current_call[count] === test_parameter) {
+									correct_calls++;
+								}
+								else if(typeof test_parameter === "string") {
+									check_type(current_call[count], test_parameter, function() {
+										correct_calls++;
+									});
+								}
+								
+								count++;
+							});
+
+							if(correct_calls === params.length && params.length === current_call.length)
+							  correct++;
 						}
 						
 						return correct;
@@ -143,24 +136,7 @@ var xray_specs = (function(){
 			}
 			
 			stubbed_function.always_called_with_exactly = function() {
-				var correct_calls = 0;
-				
-				for(var i = 0; i < received.calls.length; i++) {
-					var calls = 0;
-					
-					for(var j = 0, l = received.calls[i].length; j < l; j++) {
-						if(received.calls[i][j] === arguments[j])
-						  calls++;
-					}
-					
-					if(calls === received.calls[i].length)
-					  correct_calls++
-				}
-				
-				if(correct_calls === received.calls.length)
-				  return true;
-				
-				return false;
+				return received.matches(arguments) === received.calls.length ? true : false;
 			}
 
 			if(parent_object) {
