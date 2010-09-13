@@ -6,19 +6,6 @@ var xray_specs = (function(){
 		}
 	}
 	
-	var check_type = function(obj, type, callback) {
-		if(type.indexOf("type::") === 0) {
-			type = type.substring(6);
-
-			if(typeof obj === type) {
-				if(callback)
-				  callback();
-				
-				return true;
-			}
-		}
-	}
-	
 	return {
 		stub: function(parent_object, method) {
 			var real_method,
@@ -29,17 +16,16 @@ var xray_specs = (function(){
 				
 			received = (function() {
 				
-				var iterate_calls = function(calls, parameter_callback, callback) {
-					for(var i = 0; i < calls.length; i++) {
-						var	current_call = calls[i],
-							count = 0;
-							
-						for_each(params, function(test_parameter) {
-							parameter_callback.apply(this, test_parameter);							
-							count++;
-						});
-						
-						callback.apply(this);
+				var check_type = function(obj, type, callback) {
+					if(type.indexOf("type::") === 0) {
+						type = type.substring(6);
+
+						if(typeof obj === type) {
+							if(callback)
+							  callback();
+
+							return true;
+						}
 					}
 				}
 				
@@ -163,7 +149,7 @@ var xray_specs = (function(){
 		
 		mock: function(parent, name, inherits) {
 			var real_object = parent[name],
-				mock_object = parent[name] || {};
+				mock_object = parent[name] || {},
 				that = this,
 				create_mock,
 				expectations;
