@@ -65,6 +65,36 @@ var xray_specs = (function(){
 						}
 						
 						return correct;
+					},
+					matches: function(params) {
+						var correct = 0;
+						
+						for(var i = 0, l = this.calls.length; i < l; i++) {
+							var current_call = this.calls[i],
+								call_includes = 0;
+
+							for_each(params, function(test_parameter) {
+
+								if([].indexOf.call(current_call, test_parameter) !== -1) {
+									call_includes++;
+								}
+								else if(typeof test_parameter === "string") {
+
+									for_each(current_call, function(param) {
+										check_type(param, test_parameter, function() {
+											call_includes++;
+										});
+									});
+
+								}
+							});
+							
+							if (call_includes === current_call.length) {
+								correct++;
+							};
+						}
+						
+						return correct;
 					}
 				}
 			}());
@@ -103,37 +133,13 @@ var xray_specs = (function(){
 			stubbed_function.called_with = function() {
 				return received.includes(arguments) > 0 ? true : false;
 			}
+			
+			stubbed_function.always_called_with = function() {		
+				return received.includes(arguments) === received.calls.length ? true : false;
+			}
 
 			stubbed_function.called_with_exactly = function() {
-				for(var i = 0; i < received.calls.length; i++) {
-					var correct_calls = 0,
-						current_call = received.calls[i];
-					
-					for(var j = 0, l = arguments.length; j < l; j++) {
-						var received_parameter = current_call[j],
-							test_parameter = arguments[j];
-						
-						if(received_parameter === test_parameter) {
-							correct_calls++;
-						}
-						else if(typeof test_parameter === "string") {
-							check_type(received_parameter, test_parameter, function() {
-								correct_calls++;
-							});
-						}
-					}
-					
-					if(correct_calls === arguments.length && arguments.length === current_call.length)
-					  return true;
-				}
-				
-				return false;
-			}
-			
-			stubbed_function.always_called_with = function() {
-				jstestdriver.console.log(received.includes(arguments), received.calls.length, arguments);
-						
-				return received.includes(arguments) === received.calls.length ? true : false;
+				return received.matches(arguments) > 0 ? true : false;
 			}
 			
 			stubbed_function.always_called_with_exactly = function() {
