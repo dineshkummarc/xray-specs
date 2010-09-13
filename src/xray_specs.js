@@ -29,6 +29,20 @@ var xray_specs = (function(){
 				
 			received = (function() {
 				
+				var iterate_calls = function(calls, parameter_callback, callback) {
+					for(var i = 0; i < calls.length; i++) {
+						var	current_call = calls[i],
+							count = 0;
+							
+						for_each(params, function(test_parameter) {
+							parameter_callback.apply(this, test_parameter);							
+							count++;
+						});
+						
+						callback.apply(this);
+					}
+				}
+				
 				return {
 					calls: [],
 					includes: function(params) {
@@ -65,25 +79,25 @@ var xray_specs = (function(){
 						var correct = 0;
 						
 						for(var i = 0; i < this.calls.length; i++) {
-							var correct_calls = 0,
+							var matches = 0,
 								current_call = this.calls[i],
 								count = 0;
 								
 							for_each(params, function(test_parameter) {
 
 								if(current_call[count] === test_parameter) {
-									correct_calls++;
+									matches++;
 								}
 								else if(typeof test_parameter === "string") {
 									check_type(current_call[count], test_parameter, function() {
-										correct_calls++;
+										matches++;
 									});
 								}
 								
 								count++;
 							});
 
-							if(correct_calls === params.length && params.length === current_call.length)
+							if(matches === params.length && params.length === current_call.length)
 							  correct++;
 						}
 						
@@ -149,39 +163,24 @@ var xray_specs = (function(){
 		
 		mock: function(parent, name, inherits) {
 			var real_object = parent[name],
-				mock_object,
+				mock_object = parent[name] || {};
 				that = this,
 				create_mock,
 				expectations;
 			
 			create_mock = (function() {
-				var stub_methods;
 				
-				if(inherits && parent[name]) {
-					mock_object = parent[name];
-					
-					for(var method in inherits) {
-						mock_object[method] = inherits[method];
-						that.stub(mock_object, method);
-					}
-				}
-				else if(inherits) {
-					mock_object = inherits;
-				}
-				else if(parent[name]) {
-					mock_object = parent[name];
-				}
-				else {
-					mock_object = {};
+				for(var method in mock_object) {
+					that.stub(mock_object, method);
 				}
 				
-				stub_methods = (function() {
-					for(var method in mock_object) {
-						that.stub(mock_object, method);
-					}
-				}());
-
+				for(var method in inherits) {
+					mock_object[method] = inherits[method];
+					that.stub(mock_object, method);
+				}
+				
 				parent[name] = mock_object;
+				
 			}());
 			
 			expectations = (function(){
