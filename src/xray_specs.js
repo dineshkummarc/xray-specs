@@ -19,30 +19,59 @@ var xray_specs = (function(){
 		}
 	}
 	
-	var check_types = function(argument_list, test_param) {
-		for_each(argument_list, function(param) {
-			check_type(param, test_param, function() {
-				status = true;
-			});
-		});
+	var collection_includes = function(args, param) {
+		if([].indexOf.call(args, param) !== -1)
+		  return true
 	}
 	
 	return {
-		
 		stub: function(parent_object, method) {
 			var real_method,
 				stubbed_function,
 				return_value,
-				received_calls,
+				received,
 				called = 0;
 				
-			received_calls = (function() {
-				return [];
+			received = (function() {
+				
+				return {
+					calls: [],
+					includes: function(params) {
+						var correct = 0;
+						
+						for(var i = 0, l = this.calls.length; i < l; i++) {
+							var current_call = this.calls[i],
+								call_includes = false;
+
+							for_each(params, function(test_parameter) {
+
+								if([].indexOf.call(current_call, test_parameter) !== -1) {
+									call_includes = true;
+								}
+								else if(typeof test_parameter === "string") {
+
+									for_each(current_call, function(param) {
+										check_type(param, test_parameter, function() {
+											call_includes = true;
+										});
+									});
+
+								}
+							});
+							
+							if (call_includes) {
+								correct++;
+							};
+						}
+						
+						return correct;
+					}
+				}
 			}());
 
 			stubbed_function = function() {
 				called++;
-				received_calls.push(arguments);
+				received.calls.push(arguments);
 
 				return return_value;
 			}
@@ -72,35 +101,13 @@ var xray_specs = (function(){
 			}
 
 			stubbed_function.called_with = function() {
-				var status = false;
-				
-				for(var i = 0, l = received_calls.length; i < l; i++) {
-					var current_call = received_calls[i];
-					
-					for_each(arguments, function(test_parameter) {
-									
-						if([].indexOf.call(current_call, test_parameter) !== -1) {
-							status = true;
-						}
-						else if(typeof test_parameter === "string") {
-							
-							for_each(current_call, function(param) {
-								check_type(param, test_parameter, function() {
-									status = true;
-								});
-							});
-							
-						}
-					});
-				}
-				
-				return status;
+				return received.includes(arguments) > 0 ? true : false;
 			}
 
 			stubbed_function.called_with_exactly = function() {
-				for(var i = 0; i < received_calls.length; i++) {
+				for(var i = 0; i < received.calls.length; i++) {
 					var correct_calls = 0,
-						current_call = received_calls[i];
+						current_call = received.calls[i];
 					
 					for(var j = 0, l = arguments.length; j < l; j++) {
 						var received_parameter = current_call[j],
@@ -124,42 +131,27 @@ var xray_specs = (function(){
 			}
 			
 			stubbed_function.always_called_with = function() {
-				var correct_calls = 0;
-				
-				for(var i = 0; i < received_calls.length; i++) {
-					var called = false;
-					
-					for(var j = 0, l = arguments.length; j < l; j++) {
-						if([].indexOf.call(received_calls[i], arguments[j]) !== -1)
-						  called = true;
-					}
-					
-					if(called)
-					  correct_calls++;
-				}
-				
-				if(correct_calls === received_calls.length)
-				  return true;
-				
-				return false;
+				jstestdriver.console.log(received.includes(arguments), received.calls.length, arguments);
+						
+				return received.includes(arguments) === received.calls.length ? true : false;
 			}
 			
 			stubbed_function.always_called_with_exactly = function() {
 				var correct_calls = 0;
 				
-				for(var i = 0; i < received_calls.length; i++) {
+				for(var i = 0; i < received.calls.length; i++) {
 					var calls = 0;
 					
-					for(var j = 0, l = received_calls[i].length; j < l; j++) {
-						if(received_calls[i][j] === arguments[j])
+					for(var j = 0, l = received.calls[i].length; j < l; j++) {
+						if(received.calls[i][j] === arguments[j])
 						  calls++;
 					}
 					
-					if(calls === received_calls[i].length)
+					if(calls === received.calls[i].length)
 					  correct_calls++
 				}
 				
-				if(correct_calls === received_calls.length)
+				if(correct_calls === received.calls.length)
 				  return true;
 				
 				return false;
