@@ -1,17 +1,100 @@
 var xray_specs = (function(){
 	
+	var for_each = function(obj, fn, that) {
+		for (var i = 0, l = obj.length; i < l; i++) {
+			fn.call(this, obj[i]);
+		}
+	}
+	
 	return {
-		
 		stub: function(parent_object, method) {
 			var real_method,
 				stubbed_function,
 				return_value,
-				recorded_calls = [],
+				received,
 				called = 0;
+				
+			received = (function() {
+				
+				var check_type = function(obj, type, callback) {
+					if(type.indexOf("type::") === 0) {
+						type = type.substring(6);
+
+						if(typeof obj === type) {
+							if(callback)
+							  callback();
+
+							return true;
+						}
+					}
+				}
+				
+				return {
+					calls: [],
+					includes: function(params) {
+						var correct = 0;
+						
+						for(var i = 0, l = this.calls.length; i < l; i++) {
+							var current_call = this.calls[i],
+								call_includes = 0;
+
+							for_each(params, function(test_parameter) {
+
+								if([].indexOf.call(current_call, test_parameter) !== -1) {
+									call_includes++;
+								}
+								else if(typeof test_parameter === "string") {
+
+									for_each(current_call, function(param) {
+										check_type(param, test_parameter, function() {
+											call_includes++;
+										});
+									});
+
+								}
+							});
+							
+							if (call_includes) {
+								correct++;
+							};
+						}
+						
+						return correct;
+					},
+					matches: function(params) {
+						var correct = 0;
+						
+						for(var i = 0; i < this.calls.length; i++) {
+							var matches = 0,
+								current_call = this.calls[i],
+								count = 0;
+								
+							for_each(params, function(test_parameter) {
+
+								if(current_call[count] === test_parameter) {
+									matches++;
+								}
+								else if(typeof test_parameter === "string") {
+									check_type(current_call[count], test_parameter, function() {
+										matches++;
+									});
+								}
+								
+								count++;
+							});
+
+							if(matches === params.length && params.length === current_call.length)
+							  correct++;
+						}
+						
+						return correct;
+					}
+				}
+			}());
 
 			stubbed_function = function() {
 				called++;
-				recorded_calls.push(arguments);
+				received.calls.push(arguments);
 
 				return return_value;
 			}
@@ -41,136 +124,49 @@ var xray_specs = (function(){
 			}
 
 			stubbed_function.called_with = function() {
-				for(var i = 0, l = recorded_calls.length; i < l; i++) {
-					for(var j = 0, l = arguments.length; j < l; j++) {
-						if([].indexOf.call(recorded_calls[i], arguments[j]) !== -1) {
-							return true;
-						}
-						else if(typeof arguments[j] === "string") {
-							if(arguments[j].indexOf("type::") === 0) {
-								var type = arguments[j].substring(6);
-
-								for(var k = 0; k < recorded_calls[i].length; k++) {
-									if(typeof recorded_calls[i][k] === type)
-									  return true;
-								}
-							}
-						}
-					}
-				}
-				
-				return false;
+				return received.includes(arguments) > 0 ? true : false;
+			}
+			
+			stubbed_function.always_called_with = function() {		
+				return received.includes(arguments) === received.calls.length ? true : false;
 			}
 
 			stubbed_function.called_with_exactly = function() {
-				for(var i = 0; i < recorded_calls.length; i++) {
-					var correct_call = 0;
-					
-					for(var j = 0, l = arguments.length; j < l; j++) {
-						if(recorded_calls[i][j] === arguments[j]) {
-							correct_call++;
-						}
-						else if(typeof arguments[j] === "string") {
-							if(arguments[j].indexOf("type::") === 0) {
-								var type = arguments[j].substring(6);
-								
-								if(typeof recorded_calls[i][j] === type)
-								  correct_call++;
-							}
-						}
-					}
-					
-					if(correct_call === arguments.length && arguments.length === recorded_calls[i].length)
-					  return true;
-				}
-				
-				return false;
-			}
-			
-			stubbed_function.always_called_with = function() {
-				var correct_calls = 0;
-				
-				for(var i = 0; i < recorded_calls.length; i++) {
-					var called = false;
-					
-					for(var j = 0, l = arguments.length; j < l; j++) {
-						if([].indexOf.call(recorded_calls[i], arguments[j]) !== -1)
-						  called = true;
-					}
-					
-					if(called)
-					  correct_calls++;
-				}
-				
-				if(correct_calls === recorded_calls.length)
-				  return true;
-				
-				return false;
+				return received.matches(arguments) > 0 ? true : false;
 			}
 			
 			stubbed_function.always_called_with_exactly = function() {
-				var correct_calls = 0;
-				
-				for(var i = 0; i < recorded_calls.length; i++) {
-					var calls = 0;
-					
-					for(var j = 0, l = recorded_calls[i].length; j < l; j++) {
-						if(recorded_calls[i][j] === arguments[j])
-						  calls++;
-					}
-					
-					if(calls === recorded_calls[i].length)
-					  correct_calls++
-				}
-				
-				if(correct_calls === recorded_calls.length)
-				  return true;
-				
-				return false;
+				return received.matches(arguments) === received.calls.length ? true : false;
 			}
 
-			if(!parent_object)
-			  return stubbed_function;
-
-			real_method = parent_object[method];
-			parent_object[method] = stubbed_function;
+			if(parent_object) {
+				real_method = parent_object[method];
+				parent_object[method] = stubbed_function;
+			}
+			
+			return stubbed_function;
 		},
 		
 		mock: function(parent, name, inherits) {
 			var real_object = parent[name],
-				mock_object,
+				mock_object = parent[name] || {},
 				that = this,
 				create_mock,
 				expectations;
 			
 			create_mock = (function() {
-				var stub_methods;
 				
-				if(inherits && parent[name]) {
-					mock_object = parent[name];
-					
-					for(var method in inherits) {
-						mock_object[method] = inherits[method];
-						that.stub(mock_object, method);
-					}
-				}
-				else if(inherits) {
-					mock_object = inherits;
-				}
-				else if(parent[name]) {
-					mock_object = parent[name];
-				}
-				else {
-					mock_object = {};
+				for(var method in mock_object) {
+					that.stub(mock_object, method);
 				}
 				
-				stub_methods = (function() {
-					for(var method in mock_object) {
-						that.stub(mock_object, method);
-					}
-				}());
-
+				for(var method in inherits) {
+					mock_object[method] = inherits[method];
+					that.stub(mock_object, method);
+				}
+				
 				parent[name] = mock_object;
+				
 			}());
 			
 			expectations = (function(){
@@ -182,7 +178,7 @@ var xray_specs = (function(){
 						var check = verifications[i].check;
 						
 						if(typeof check === 'function') {
-							if(!check.apply(this, verifications[i].params))
+							if(!check.apply(null, verifications[i].params))
 							  return false;
 						}
 						else {
