@@ -149,19 +149,18 @@ var xray_specs = (function(){
 		
 		mock: function(parent, name, inherits) {
 			var real_object = parent[name],
-				mock_object = parent[name] || {},
+				mock_object = inherits || {},
 				that = this,
 				create_mock,
 				expectations;
 			
 			create_mock = (function() {
 				
-				for(var method in mock_object) {
-					that.stub(mock_object, method);
+				for(var method in parent[name]) {
+					mock_object[method] = real_object[method];
 				}
 				
-				for(var method in inherits) {
-					mock_object[method] = inherits[method];
+				for(var method in mock_object) {
 					that.stub(mock_object, method);
 				}
 				
@@ -284,3 +283,11 @@ var xray_specs = (function(){
 		}
 	}
 }());
+
+if (typeof Object.create !== 'function') {
+    Object.create = function (o) {
+        function F() {}
+        F.prototype = o;
+        return new F();
+    };
+}
