@@ -7,9 +7,11 @@ var xray_specs = (function(){
 	}
 	
 	return {
+		
 		stub: function(parent_object, method) {
-			var real_method,
-				stubbed_function,
+			
+			var real_method, 
+				stubbed_function,	
 				return_value,
 				received,
 				called = 0;
@@ -147,6 +149,7 @@ var xray_specs = (function(){
 			return stubbed_function;
 		},
 		
+		
 		mock: function(parent, name, inherits) {
 			var real_object = parent[name],
 				mock_object = parent[name] || {},
@@ -210,6 +213,7 @@ var xray_specs = (function(){
 			
 			mock_object.expectations = {
 				to_be_called: {
+					
 					times: function() {
 						expectations.add('called_exactly', arguments);
 						
@@ -237,6 +241,7 @@ var xray_specs = (function(){
 				},
 				
 				with_args: {
+					
 					matching: function() {
 						expectations.add('called_with_exactly', arguments);
 						
