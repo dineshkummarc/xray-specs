@@ -161,7 +161,13 @@ var xray_specs = (function(){
 				}
 				
 				for(var method in mock_object) {
+					var return_value;
+					
+					if(mock_object[method].returns)
+					  return_value = mock_object[method].returns;
+					
 					that.stub(mock_object, method);
+					mock_object[method].returns(return_value);
 				}
 				
 				parent[name] = mock_object;
@@ -259,10 +265,6 @@ var xray_specs = (function(){
 						
 						return mock_object.expectations;
 					}
-				},
-				
-				and_returns: function(value) {
-					expectations.method.returns(value);
 				}
 				
 			};
