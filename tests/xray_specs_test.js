@@ -576,38 +576,19 @@ TestCase("mock return values", {
 		};
 
 		xray_specs.mock(namespace, 'collaborator', {
-			some_method: {},
-			another_method: {}
+			some_method: {
+				returns: 6
+			},
+			another_method: {
+				returns: "hello"
+			}
 		});
 	},
 	"test that mock expectations can be set for return value": function(){
-		namespace.collaborator.expects('some_method')
-			.and_returns("...and the cheque when it arrived we went Dutch, Dutch, Dutch");
-			
-		var return_value = namespace.collaborator.some_method();
+		var should_equal_6 = namespace.collaborator.some_method();
+		var should_equal_hello =namespace.collaborator.another_method();
 		
-		assertEquals("...and the cheque when it arrived we went Dutch, Dutch, Dutch", return_value);	
-		assertTrue(namespace.collaborator.verify());
-	},
-	"test that return values can be chained after call expectations": function(){
-		namespace.collaborator.expects('some_method')
-			.to_be_called.times(1)
-				.and_returns("...and the cheque when it arrived we went Dutch, Dutch, Dutch");
-			
-		var return_value = namespace.collaborator.some_method();
-		
-		assertEquals("...and the cheque when it arrived we went Dutch, Dutch, Dutch", return_value);	
-		assertTrue(namespace.collaborator.verify());
-	},
-	"test that return values can be chained to arg expectations": function(){
-		namespace.collaborator.expects('some_method')
-			.to_be_called.times(1)
-				.with_args.matching("hello")
-					.and_returns("...and the cheque when it arrived we went Dutch, Dutch, Dutch");
-			
-		var return_value = namespace.collaborator.some_method("hello");
-		
-		assertEquals("...and the cheque when it arrived we went Dutch, Dutch, Dutch", return_value);	
-		assertTrue(namespace.collaborator.verify());
+		assertEquals(6, should_equal_6);
+		assertEquals("hello", should_equal_hello);
 	}
 });
