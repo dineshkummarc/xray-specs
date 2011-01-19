@@ -206,7 +206,7 @@ Create a stub function on an object
 	example = {};
 	xray_specs.stub(sut, "some_method");
 	
-Replace an existing function with a stub
+Replace an existing function with a stub:
 
 	example = {
 		another_method: function() {
